@@ -7,6 +7,7 @@ import Setting from '../Setting'
 import SoundSwitcher from '../SoundSwitcher'
 import WordDictationSwitcher from '../WordDictationSwitcher'
 import Tooltip from '@/components/Tooltip'
+import AddWordButton from '@/pages/Typing/components/AddWord/AddWordButton'
 import { isOpenDarkModeAtom } from '@/store'
 import { CTRL } from '@/utils'
 import { useAtom } from 'jotai'
@@ -69,6 +70,10 @@ export default function Switcher() {
 
       <Tooltip content="错题本">
         <ErrorBookButton />
+      </Tooltip>
+
+      <Tooltip content="添加单词/短语">
+        <AddWordButton />
       </Tooltip>
 
       <Tooltip className="h-7 w-7" content="查看数据统计">

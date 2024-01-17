@@ -3,6 +3,7 @@ import './index.css'
 import { ErrorBook } from './pages/ErrorBook'
 import TypingPage from './pages/Typing'
 import { isOpenDarkModeAtom } from '@/store'
+import '@arco-design/web-react/dist/css/arco.css'
 import { useAtomValue } from 'jotai'
 import mixpanel from 'mixpanel-browser'
 import process from 'process'
@@ -13,6 +14,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 const AnalysisPage = lazy(() => import('./pages/Analysis'))
 const GalleryPage = lazy(() => import('./pages/Gallery-N'))
+const AddWordPage = lazy(() => import('@/pages/Typing/components/AddWord'))
 
 if (process.env.NODE_ENV === 'production') {
   // for prod
@@ -39,6 +41,7 @@ function Root() {
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/analysis" element={<AnalysisPage />} />
             <Route path="/error-book" element={<ErrorBook />} />
+            <Route path="/add-word" element={<AddWordPage />} />
             <Route path="/*" element={<Navigate to="/" />} />
           </Routes>
         </Suspense>
