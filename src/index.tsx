@@ -28,7 +28,13 @@ const container = document.getElementById('root')
 function Root() {
   const darkMode = useAtomValue(isOpenDarkModeAtom)
   useEffect(() => {
-    darkMode ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')
+    if (darkMode) {
+      document.body.setAttribute('arco-theme', 'dark')
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      document.body.setAttribute('arco-theme', 'light')
+    }
   }, [darkMode])
 
   return (
