@@ -11,8 +11,13 @@ export default function AddWordPage() {
     navigate('/')
   }, [navigate])
   const FormItem = Form.Item
+  const TextArea = Input.TextArea
 
   useHotkeys('esc', onBack, { preventDefault: true })
+
+  const saveFn = () => {
+    console.log(2323)
+  }
 
   return (
     <Layout>
@@ -21,21 +26,28 @@ export default function AddWordPage() {
         <div className="mt-20 flex w-full flex-1 flex-col items-center justify-center overflow-y-auto">
           <Card style={{ width: 600 }} title="单词录入">
             <Form autoComplete="off" colon={true}>
-              <FormItem label="英文" field="name" required>
-                <Input placeholder="请输入英文或短语" />
+              <FormItem label="英文" field="name" rules={[{ required: true, message: '请输入单词或短语' }]}>
+                <TextArea
+                  placeholder="单词或短语"
+                  autoSize={{ minRows: 2, maxRows: 6 }}
+                  showWordLimit
+                  maxLength={{ length: 300, errorOnly: true }}
+                />
               </FormItem>
-              <FormItem label="中文" field="trans" required>
-                <Input placeholder="请输入中文释义" />
+              <FormItem label="中文" field="trans" rules={[{ required: true, message: '请输入中文释义' }]}>
+                <TextArea placeholder="中文释义" autoSize={{ minRows: 2, maxRows: 6 }} />
               </FormItem>
               <FormItem label="音标（美）" field="usphone">
-                <Input placeholder="请输入美音音标" />
+                <Input placeholder="美音音标" />
               </FormItem>
               <FormItem label="音标（英）" field="ukphone">
-                <Input placeholder="请输入英音音标" />
+                <Input placeholder="英音音标" />
               </FormItem>
 
               <FormItem wrapperCol={{ offset: 5 }}>
-                <Button type="primary">保存</Button>
+                <Button type="primary" onClick={saveFn} htmlType="submit">
+                  保存
+                </Button>
               </FormItem>
             </Form>
           </Card>
