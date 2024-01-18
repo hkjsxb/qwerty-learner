@@ -1,5 +1,5 @@
 import Loading from './components/Loading'
-import './index.css'
+import './index.scss'
 import { ErrorBook } from './pages/ErrorBook'
 import TypingPage from './pages/Typing'
 import { isOpenDarkModeAtom } from '@/store'
