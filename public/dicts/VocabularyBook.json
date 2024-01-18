@@ -1,5 +1,25 @@
 [
   {
+    "name": "dish",
+    "trans": "碟子"
+  },
+  {
+    "name": "rake",
+    "trnas": "耙子"
+  },
+  {
+    "name": "toy",
+    "trans": "玩具"
+  },
+  {
+    "name": "ship",
+    "trans": "船"
+  },
+  {
+    "name": "hold",
+    "trans": "举起，拿着，拖着"
+  },
+  {
     "name": "fear",
     "trans": "n. 害怕，担忧，敬畏，可能性 vt. 害怕，担忧，恐怕，敬畏 vi. 担忧",
     "usphone": "",
