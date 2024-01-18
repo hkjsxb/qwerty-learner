@@ -1,5 +1,13 @@
 [
   {
+    "name": "lit",
+    "trans": "发光,发亮"
+  },
+  {
+    "name": "pot",
+    "trans": "壶"
+  },
+  {
     "name": "dish",
     "trans": "碟子"
   },
