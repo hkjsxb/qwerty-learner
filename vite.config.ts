@@ -1,3 +1,4 @@
+import { vitePluginForArco } from '@arco-plugins/vite-react'
 import react from '@vitejs/plugin-react'
 import { promises as fs } from 'fs'
 import { getLastCommit } from 'git-last-commit'
@@ -17,6 +18,7 @@ export default defineConfig(async ({ mode }) => {
   return {
     plugins: [
       react({ babel: { plugins: [jotaiDebugLabel, jotaiReactRefresh] } }),
+      vitePluginForArco(),
       visualizer() as PluginOption,
       Icons({
         compiler: 'jsx',
