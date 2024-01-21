@@ -8,6 +8,7 @@ import SoundSwitcher from '../SoundSwitcher'
 import WordDictationSwitcher from '../WordDictationSwitcher'
 import Tooltip from '@/components/Tooltip'
 import AddWordButton from '@/pages/Typing/components/AddWord/AddWordButton'
+import LoginButton from '@/pages/Typing/components/Login/LoginButton'
 import { isOpenDarkModeAtom } from '@/store'
 import { CTRL } from '@/utils'
 import { useAtom } from 'jotai'
@@ -98,6 +99,10 @@ export default function Switcher() {
       </Tooltip>
       <Tooltip content="设置">
         <Setting />
+      </Tooltip>
+
+      <Tooltip content="登录">
+        <LoginButton />
       </Tooltip>
     </div>
   )
