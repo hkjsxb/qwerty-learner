@@ -10,6 +10,11 @@ export type wordBookRow = {
   userId?: string
 }
 
+export type wordBookListType = {
+  count: number
+  wordBookList: Array<wordBookRow>
+}
+
 // {
 //     "createTime": "2024-01-21 15:58:01",
 //     "name": "lit",

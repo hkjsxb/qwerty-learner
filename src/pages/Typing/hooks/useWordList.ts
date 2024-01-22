@@ -28,7 +28,9 @@ export function useWordList(): UseWordListResult {
   const isFirstChapter = !isReviewMode && currentDictInfo.id === 'cet4' && currentChapter === 0
   if (currentDictInfo.languageCategory === 'VocabularyBook') {
     // 生词本的数据，从本地缓存中读取
-    console.log('生词本数据，从本地缓存中读取')
+    // TODO：需要根据type将数据分为单词和例句两个分类，根据book_name和book_name拼出单词本的信息
+    const wordBookList = localStorage.getItem('wordBookList')
+    console.log('生词本数据，从本地缓存中读取', wordBookList)
   }
   // 从URL中获取数据
   const { data: wordList, error, isLoading } = useSWR(currentDictInfo.url, wordListFetcher)

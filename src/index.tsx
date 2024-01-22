@@ -2,7 +2,7 @@ import Loading from './components/Loading'
 import './index.scss'
 import { ErrorBook } from './pages/ErrorBook'
 import TypingPage from './pages/Typing'
-import type { responseDataType, wordBookRow } from '@/api/type/WordBookType'
+import type { responseDataType, wordBookListType } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
 import { isOpenDarkModeAtom } from '@/store'
 import { Notification } from '@arco-design/web-react'
@@ -33,10 +33,11 @@ function Root() {
   const [wordBookLoadState, setWordBookLoadState] = useState(false)
   const darkMode = useAtomValue(isOpenDarkModeAtom)
   useEffect(() => {
-    wordBookAPI.getWordBookList({}).then((res: responseDataType<wordBookRow>) => {
+    // 获取单词本数据，将其放入本地存储中
+    wordBookAPI.getWordBookList({}).then((res: responseDataType<wordBookListType>) => {
       const { data, code, msg } = res
       if (code === 0) {
-        console.log('接口数据获取成功', data)
+        localStorage.setItem('wordBookList', JSON.stringify(data.wordBookList))
         setWordBookLoadState(true)
         return
       }
