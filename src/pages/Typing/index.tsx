@@ -96,6 +96,7 @@ const App: React.FC = () => {
     if (words !== undefined) {
       const initialIndex = isReviewMode && reviewModeInfo.reviewRecord?.index ? reviewModeInfo.reviewRecord.index : 0
 
+      // 设置章节函数
       dispatch({
         type: TypingStateActionType.SETUP_CHAPTER,
         payload: { words, shouldShuffle: randomConfig.isOpen, initialIndex },

@@ -26,6 +26,11 @@ export function useWordList(): UseWordListResult {
   }
 
   const isFirstChapter = !isReviewMode && currentDictInfo.id === 'cet4' && currentChapter === 0
+  if (currentDictInfo.languageCategory === 'VocabularyBook') {
+    // 生词本的数据，从本地缓存中读取
+    console.log('生词本数据，从本地缓存中读取')
+  }
+  // 从URL中获取数据
   const { data: wordList, error, isLoading } = useSWR(currentDictInfo.url, wordListFetcher)
 
   const words: WordWithIndex[] = useMemo(() => {
@@ -36,6 +41,7 @@ export function useWordList(): UseWordListResult {
       newWords = reviewRecord?.words ?? []
     } else if (wordList) {
       newWords = wordList.slice(currentChapter * CHAPTER_LENGTH, (currentChapter + 1) * CHAPTER_LENGTH)
+      console.log('当前筛选出来的数据', newWords)
     } else {
       newWords = []
     }

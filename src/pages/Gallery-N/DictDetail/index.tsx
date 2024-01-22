@@ -33,6 +33,7 @@ export default function DictDetail({ dictionary: dict }: { dictionary: Dictionar
   const { errorWordData, isLoading, error } = useErrorWordData(dict)
   const tableData = useMemo(() => getRowsFromErrorWordData(errorWordData), [errorWordData])
 
+  // 章节点击事件
   const onChangeChapter = useCallback(
     (index: number) => {
       setCurrentDictId(dict.id)

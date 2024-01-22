@@ -26,6 +26,9 @@ export default function Login() {
           position: 'bottomRight',
         })
         localStorage.setItem('token', data.token)
+        localStorage.setItem('userId', data.userID)
+        localStorage.setItem('userName', data.username)
+        localStorage.setItem('refreshToken', data.refreshToken)
         navigate('/')
       }
     })

@@ -2,11 +2,14 @@ import Loading from './components/Loading'
 import './index.scss'
 import { ErrorBook } from './pages/ErrorBook'
 import TypingPage from './pages/Typing'
+import type { responseDataType, wordBookRow } from '@/api/type/WordBookType'
+import wordBookAPI from '@/api/wordBookAPI'
 import { isOpenDarkModeAtom } from '@/store'
+import { Notification } from '@arco-design/web-react'
 import { useAtomValue } from 'jotai'
 import mixpanel from 'mixpanel-browser'
 import process from 'process'
-import React, { Suspense, lazy, useEffect } from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import 'react-app-polyfill/stable'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
@@ -27,8 +30,23 @@ if (process.env.NODE_ENV === 'production') {
 const container = document.getElementById('root')
 
 function Root() {
+  const [wordBookLoadState, setWordBookLoadState] = useState(false)
   const darkMode = useAtomValue(isOpenDarkModeAtom)
   useEffect(() => {
+    wordBookAPI.getWordBookList({}).then((res: responseDataType<wordBookRow>) => {
+      const { data, code, msg } = res
+      if (code === 0) {
+        console.log('接口数据获取成功', data)
+        setWordBookLoadState(true)
+        return
+      }
+      Notification.error({
+        title: code,
+        content: msg,
+        showIcon: true,
+        position: 'bottomRight',
+      })
+    })
     if (darkMode) {
       document.body.setAttribute('arco-theme', 'dark')
       document.documentElement.classList.add('dark')
@@ -37,6 +55,10 @@ function Root() {
       document.body.setAttribute('arco-theme', 'light')
     }
   }, [darkMode])
+
+  if (!wordBookLoadState) {
+    return <Loading />
+  }
 
   return (
     <React.StrictMode>

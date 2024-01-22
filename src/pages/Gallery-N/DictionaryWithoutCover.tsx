@@ -85,6 +85,7 @@ export default function DictionaryComponent({ dictionary }: Props) {
         </div>
       </DialogTrigger>
       <DialogContent className="w-[60rem] max-w-none !rounded-[20px]">
+        {/*词典点击弹窗*/}
         <DictDetail dictionary={dictionary} />
       </DialogContent>
     </Dialog>

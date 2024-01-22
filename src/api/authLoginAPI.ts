@@ -16,6 +16,14 @@ const authLoginAPI = {
   login(params: { userName: string; password: string }) {
     return services.post(`${base.lkChatBaseURL}/user/login`, params)
   },
+  // token续期
+  tokenRenew(params: { token: string; userId: string }) {
+    return services.post(`${base.lkChatBaseURL}/user/tokenRenew`, params)
+  },
+  // 更新在线状态
+  updateOnlineStatus(params: { userId: string; status: boolean }) {
+    return services.post(`${base.lkChatBaseURL}/user/updateOnlineStatus`, params)
+  },
   // 获取授权url地址
   getAuthorize(params: { platform: string }) {
     return services.get(`${base.lkChatBaseURL}/user/getAuthorize`, {
