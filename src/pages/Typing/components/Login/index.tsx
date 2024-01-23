@@ -1,6 +1,8 @@
 import authLoginAPI from '@/api/authLoginAPI'
 import Layout from '@/components/Layout'
+import { needLogin } from '@/store'
 import { Button, Card, Form, Input, Notification } from '@arco-design/web-react'
+import { useSetAtom } from 'jotai/index'
 import { useCallback } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useNavigate } from 'react-router-dom'
@@ -8,6 +10,7 @@ import IconX from '~icons/tabler/x'
 
 export default function Login() {
   const navigate = useNavigate()
+  const setNeedToLogIn = useSetAtom(needLogin)
   const onBack = useCallback(() => {
     navigate('/')
   }, [navigate])
@@ -25,10 +28,12 @@ export default function Login() {
           showIcon: true,
           position: 'bottomRight',
         })
+        setNeedToLogIn(false)
         localStorage.setItem('token', data.token)
         localStorage.setItem('userId', data.userID)
         localStorage.setItem('userName', data.username)
         localStorage.setItem('refreshToken', data.refreshToken)
+
         navigate('/')
       }
     })
