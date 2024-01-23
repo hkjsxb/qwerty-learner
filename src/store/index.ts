@@ -17,6 +17,7 @@ import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 
 export const currentDictIdAtom = atomWithStorage('currentDict', 'cet4')
+export const needLogin = atomWithStorage('needLogin', false)
 export const currentDictInfoAtom = atom<Dictionary>((get) => {
   const id = get(currentDictIdAtom)
   let dict = idDictionaryMap[id]

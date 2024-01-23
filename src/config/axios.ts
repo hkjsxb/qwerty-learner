@@ -7,6 +7,7 @@
 import authLoginAPI from '@/api/authLoginAPI'
 import type { responseDataType } from '@/api/type/WordBookType'
 import type { pendingRequest } from '@/config/type/AxiosCstType'
+import { Notification } from '@arco-design/web-react'
 import type { AxiosResponse } from 'axios'
 import axiosObj from 'axios'
 
@@ -92,6 +93,15 @@ _axios.interceptors.response.use(
             }
           })
           .catch((reason) => {
+            // 触发自定义事件，告知组件需要更新全局状态
+            const axiosCatchEvent = new CustomEvent('axiosCatchEvent', { detail: { reason, type: 'needLogin' } })
+            window.dispatchEvent(axiosCatchEvent)
+            Notification.error({
+              title: '未登录',
+              content: '请先登录',
+              showIcon: true,
+              position: 'bottomRight',
+            })
             throw reason
           })
           .finally(() => {

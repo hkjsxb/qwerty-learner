@@ -4,9 +4,10 @@ import { ErrorBook } from './pages/ErrorBook'
 import TypingPage from './pages/Typing'
 import type { responseDataType, wordBookListType } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
-import { isOpenDarkModeAtom } from '@/store'
+import { isOpenDarkModeAtom, needLogin } from '@/store'
 import { Notification } from '@arco-design/web-react'
 import { useAtomValue } from 'jotai'
+import { useSetAtom } from 'jotai/index'
 import mixpanel from 'mixpanel-browser'
 import process from 'process'
 import React, { Suspense, lazy, useEffect, useState } from 'react'
@@ -32,22 +33,28 @@ const container = document.getElementById('root')
 function Root() {
   const [wordBookLoadState, setWordBookLoadState] = useState(false)
   const darkMode = useAtomValue(isOpenDarkModeAtom)
+  const setNeedToLogIn = useSetAtom(needLogin)
   useEffect(() => {
     // 获取单词本数据，将其放入本地存储中
-    wordBookAPI.getWordBookList({}).then((res: responseDataType<wordBookListType>) => {
-      const { data, code, msg } = res
-      if (code === 0) {
-        localStorage.setItem('wordBookList', JSON.stringify(data.wordBookList))
-        setWordBookLoadState(true)
-        return
-      }
-      Notification.error({
-        title: code,
-        content: msg,
-        showIcon: true,
-        position: 'bottomRight',
+    wordBookAPI
+      .getWordBookList({})
+      .then((res: responseDataType<wordBookListType>) => {
+        const { data, code, msg } = res
+        if (code === 0) {
+          localStorage.setItem('wordBookList', JSON.stringify(data.wordBookList))
+          setWordBookLoadState(true)
+          return
+        }
+        Notification.error({
+          title: code,
+          content: msg,
+          showIcon: true,
+          position: 'bottomRight',
+        })
       })
-    })
+      .catch(() => {
+        setWordBookLoadState(true)
+      })
     if (darkMode) {
       document.body.setAttribute('arco-theme', 'dark')
       document.documentElement.classList.add('dark')
@@ -55,7 +62,18 @@ function Root() {
       document.documentElement.classList.remove('dark')
       document.body.setAttribute('arco-theme', 'light')
     }
-  }, [darkMode])
+    const handleAxiosCatchEvent = (event: CustomEventInit) => {
+      // 更新状态
+      const { type } = event.detail
+      if (type === 'needLogin') {
+        setNeedToLogIn(true)
+      }
+    }
+    window.addEventListener('axiosCatchEvent', handleAxiosCatchEvent)
+    return () => {
+      window.removeEventListener('axiosCatchEvent', handleAxiosCatchEvent)
+    }
+  }, [darkMode, setNeedToLogIn])
 
   if (!wordBookLoadState) {
     return <Loading />

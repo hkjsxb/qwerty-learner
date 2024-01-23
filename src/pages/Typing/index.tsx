@@ -15,18 +15,21 @@ import Header from '@/components/Header'
 import StarCard from '@/components/StarCard'
 import Tooltip from '@/components/Tooltip'
 import { idDictionaryMap } from '@/resources/dictionary'
-import { currentChapterAtom, currentDictIdAtom, isReviewModeAtom, randomConfigAtom, reviewModeInfoAtom } from '@/store'
+import { currentChapterAtom, currentDictIdAtom, isReviewModeAtom, needLogin, randomConfigAtom, reviewModeInfoAtom } from '@/store'
 import { IsDesktop, isLegal } from '@/utils'
 import { useSaveChapterRecord } from '@/utils/db'
 import { useMixPanelChapterLogUploader } from '@/utils/mixpanel'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useImmerReducer } from 'use-immer'
 
 const App: React.FC = () => {
   const [state, dispatch] = useImmerReducer(typingReducer, structuredClone(initialState))
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const loginStatus = useAtomValue(needLogin)
+  const navigate = useNavigate()
   const { words } = useWordList()
 
   const [currentDictId, setCurrentDictId] = useAtom(currentDictIdAtom)
@@ -39,6 +42,10 @@ const App: React.FC = () => {
   const isReviewMode = useAtomValue(isReviewModeAtom)
 
   useEffect(() => {
+    // 登录状态丢失
+    if (loginStatus) {
+      navigate('/login')
+    }
     // 检测用户设备
     if (!IsDesktop()) {
       setTimeout(() => {

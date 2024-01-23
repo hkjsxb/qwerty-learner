@@ -2870,6 +2870,7 @@ const vocabularyBook: Array<DictionaryResource> = [
     languageCategory: 'VocabularyBook',
   },
 ]
+console.log('加载', localStorage.getItem('wordBookList'))
 
 /**
  * Built-in dictionaries in an array.
