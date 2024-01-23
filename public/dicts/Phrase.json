@@ -1,5 +1,17 @@
 [
   {
+    "name": "pick up",
+    "trans": "拿起"
+  },
+  {
+    "name": "They ran to us fast",
+    "trans": "它们飞快地跑向我们"
+  },
+  {
+    "name": "Would you like to shake hands with Thing One and Thing Two?",
+    "trans": "你想和Thing One和Thing Two握手吗?"
+  },
+  {
     "name": "He ran out",
     "trans": "他跑了出去"
   },
