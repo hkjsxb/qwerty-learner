@@ -3,8 +3,8 @@ import DictRequest from './DictRequest'
 import { LanguageTabSwitcher } from './LanguageTabSwitcher'
 import Layout from '@/components/Layout'
 import { dictionaries } from '@/resources/dictionary'
-import { currentDictInfoAtom } from '@/store'
-import type { Dictionary, LanguageCategoryType } from '@/typings'
+import { currentDictInfoAtom, currentTabName } from '@/store'
+import type { Dictionary, DictionaryResource, LanguageCategoryType } from '@/typings'
 import groupBy, { groupByDictTags } from '@/utils/groupBy'
 import * as ScrollArea from '@radix-ui/react-scroll-area'
 import { useAtomValue } from 'jotai'
@@ -33,6 +33,36 @@ export default function GalleryPage() {
   const [galleryState, setGalleryState] = useImmer<GalleryState>(initialGalleryState)
   const navigate = useNavigate()
   const currentDictInfo = useAtomValue(currentDictInfoAtom)
+  const curTabName = useAtomValue(currentTabName)
+
+  const transformData = (
+    input: DictionaryResource[],
+  ): (
+    | string
+    | {
+        单词: DictionaryResource[]
+        例句: DictionaryResource[]
+      }
+  )[] => {
+    const result: { [key: string]: DictionaryResource[] } = {}
+
+    input.forEach((item) => {
+      item.tags.forEach((tag) => {
+        if (!result[tag]) {
+          result[tag] = []
+        }
+        result[tag].push(item)
+      })
+    })
+
+    return [
+      '单词本',
+      {
+        单词: result['单词'],
+        例句: result['例句'],
+      },
+    ]
+  }
 
   const { groupedByCategoryAndTag } = useMemo(() => {
     const currentLanguageCategoryDicts = dictionaries.filter((dict) => dict.languageCategory === galleryState.currentLanguageTab)
@@ -40,11 +70,22 @@ export default function GalleryPage() {
     const groupedByCategoryAndTag = groupedByCategory.map(
       ([category, dicts]) => [category, groupByDictTags(dicts)] as [string, Record<string, Dictionary[]>],
     )
-
+    // 单词本数据做特殊处理
+    if (curTabName === 'VocabularyBook') {
+      const wordBookList = localStorage.getItem('wordBookList')
+      const wordBookClassInfo = localStorage.getItem('remoteClassifiedData')
+      if (wordBookClassInfo) {
+        // 将单词本数据和单词本分类数据合并
+        const finalData = transformData(JSON.parse(wordBookClassInfo))
+        return {
+          groupedByCategoryAndTag: [finalData] as [string, Record<string, Dictionary[]>][],
+        }
+      }
+    }
     return {
       groupedByCategoryAndTag,
     }
-  }, [galleryState.currentLanguageTab])
+  }, [curTabName, galleryState.currentLanguageTab])
 
   const onBack = useCallback(() => {
     navigate('/')

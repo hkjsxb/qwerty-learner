@@ -4,8 +4,10 @@ import deFlag from '@/assets/flags/de.png'
 import enFlag from '@/assets/flags/en.png'
 import jpFlag from '@/assets/flags/ja.png'
 import vocabularyBook from '@/assets/flags/vocabularyBook.svg'
+import { currentTabName } from '@/store'
 import type { LanguageCategoryType } from '@/typings'
 import { RadioGroup } from '@headlessui/react'
+import { useSetAtom } from 'jotai'
 import { useCallback, useContext } from 'react'
 
 export type LanguageTabOption = {
@@ -25,9 +27,11 @@ const options: LanguageTabOption[] = [
 export function LanguageTabSwitcher() {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const { state, setState } = useContext(GalleryContext)!
+  const setCurTabName = useSetAtom(currentTabName)
 
   const onChangeTab = useCallback(
     (tab: string) => {
+      setCurTabName(tab)
       setState((draft) => {
         draft.currentLanguageTab = tab as LanguageCategoryType
       })

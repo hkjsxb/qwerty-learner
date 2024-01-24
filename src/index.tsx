@@ -2,9 +2,10 @@ import Loading from './components/Loading'
 import './index.scss'
 import { ErrorBook } from './pages/ErrorBook'
 import TypingPage from './pages/Typing'
-import type { responseDataType, wordBookListType } from '@/api/type/WordBookType'
+import type { responseDataType, wordBookListType, wordBookRow } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
 import { isOpenDarkModeAtom, needLogin } from '@/store'
+import type { DictionaryResource } from '@/typings'
 import { Notification } from '@arco-design/web-react'
 import { useAtomValue } from 'jotai'
 import { useSetAtom } from 'jotai/index'
@@ -35,13 +36,42 @@ function Root() {
   const darkMode = useAtomValue(isOpenDarkModeAtom)
   const setNeedToLogIn = useSetAtom(needLogin)
   useEffect(() => {
+    const mergeData = (data: Array<wordBookRow>): DictionaryResource[] => {
+      const seen: Record<string, boolean> = {} // 记录已添加的组合
+      const result: DictionaryResource[] = []
+      data.forEach((item) => {
+        const bookNameWithPhrase = item.type === 1 ? item.bookName + ' Phrase' : item.bookName
+        const key = `${bookNameWithPhrase} - ${item.description}` // 创建一个独特的键
+        if (!seen[key]) {
+          const resultItem: DictionaryResource = {
+            id: item.type === 1 ? item.bookName + '-Phrase' : item.bookName || '',
+            name: bookNameWithPhrase || '',
+            description: item.description || '',
+            category: '英文书籍',
+            tags: item.type === 1 ? ['例句'] : ['单词'],
+            url: '',
+            length: 0,
+            language: 'en',
+            languageCategory: 'VocabularyBook',
+          }
+          result.push(resultItem)
+          seen[key] = true
+        }
+      })
+      return result
+    }
+
     // 获取单词本数据，将其放入本地存储中
     wordBookAPI
       .getWordBookList({})
       .then((res: responseDataType<wordBookListType>) => {
         const { data, code, msg } = res
         if (code === 0) {
-          localStorage.setItem('wordBookList', JSON.stringify(data.wordBookList))
+          const wordBookList = data.wordBookList
+          localStorage.setItem('wordBookList', JSON.stringify(wordBookList))
+          // 生成分类数据
+          const remoteClassifiedData = mergeData(wordBookList)
+          localStorage.setItem('remoteClassifiedData', JSON.stringify(remoteClassifiedData))
           setWordBookLoadState(true)
           return
         }

@@ -2846,31 +2846,7 @@ const germanExam: DictionaryResource[] = [
   },
 ]
 
-const vocabularyBook: Array<DictionaryResource> = [
-  {
-    id: 'Seuss',
-    name: 'Dr.Seuss',
-    description: '苏斯博士系列',
-    category: '英文书籍',
-    tags: ['单词'],
-    url: '/dicts/VocabularyBook.json',
-    length: 160,
-    language: 'en',
-    languageCategory: 'VocabularyBook',
-  },
-  {
-    id: 'Seuss-Phrase',
-    name: 'Dr.Seuss Phrase',
-    description: '苏斯博士系列',
-    category: '英文书籍',
-    tags: ['例句'],
-    url: '/dicts/Phrase.json',
-    length: 100,
-    language: 'en',
-    languageCategory: 'VocabularyBook',
-  },
-]
-console.log('加载', localStorage.getItem('wordBookList'))
+const vocabularyBook: Array<DictionaryResource> = []
 
 /**
  * Built-in dictionaries in an array.

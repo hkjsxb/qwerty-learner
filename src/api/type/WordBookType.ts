@@ -1,3 +1,5 @@
+import type { DictionaryResource } from '@/typings'
+
 export type wordBookRow = {
   name: string
   trans: string
@@ -8,6 +10,8 @@ export type wordBookRow = {
   userName?: string
   type?: number
   userId?: string
+  bookName?: string
+  description?: string
 }
 
 export type wordBookListType = {
@@ -32,4 +36,10 @@ export type responseDataType<T = any> = {
   data: T
   fileName?: string
   count?: number // 数据总条数
+}
+
+export type TransformedData = {
+  单词本: string
+  单词?: DictionaryResource[]
+  例句?: DictionaryResource[]
 }

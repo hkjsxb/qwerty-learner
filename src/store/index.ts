@@ -20,6 +20,11 @@ export const currentDictIdAtom = atomWithStorage('currentDict', 'cet4')
 export const needLogin = atomWithDefault(() => {
   return false
 })
+
+// Gallery页面当前选中的词典分类名
+export const currentTabName = atomWithDefault(() => {
+  return 'en'
+})
 export const currentDictInfoAtom = atom<Dictionary>((get) => {
   const id = get(currentDictIdAtom)
   let dict = idDictionaryMap[id]
