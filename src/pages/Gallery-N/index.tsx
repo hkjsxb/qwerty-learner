@@ -1,6 +1,7 @@
 import DictionaryGroup from './CategoryDicts'
 import DictRequest from './DictRequest'
 import { LanguageTabSwitcher } from './LanguageTabSwitcher'
+import type { wordBookListType } from '@/api/type/WordBookType'
 import Layout from '@/components/Layout'
 import { dictionaries } from '@/resources/dictionary'
 import { currentDictInfoAtom, currentTabName } from '@/store'
@@ -72,7 +73,6 @@ export default function GalleryPage() {
     )
     // 单词本数据做特殊处理
     if (curTabName === 'VocabularyBook') {
-      const wordBookList = localStorage.getItem('wordBookList')
       const wordBookClassInfo = localStorage.getItem('remoteClassifiedData')
       if (wordBookClassInfo) {
         // 将单词本数据和单词本分类数据合并

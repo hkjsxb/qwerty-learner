@@ -36,7 +36,7 @@ function Root() {
   const darkMode = useAtomValue(isOpenDarkModeAtom)
   const setNeedToLogIn = useSetAtom(needLogin)
   useEffect(() => {
-    const mergeData = (data: Array<wordBookRow>): DictionaryResource[] => {
+    const mergeData = (data: Array<wordBookRow>, totalWordCount: number, totalPhraseCount: number): DictionaryResource[] => {
       const seen: Record<string, boolean> = {} // 记录已添加的组合
       const result: DictionaryResource[] = []
       data.forEach((item) => {
@@ -50,7 +50,7 @@ function Root() {
             category: '英文书籍',
             tags: item.type === 1 ? ['例句'] : ['单词'],
             url: '',
-            length: 0,
+            length: item.type === 1 ? totalPhraseCount : totalWordCount,
             language: 'en',
             languageCategory: 'VocabularyBook',
           }
@@ -63,14 +63,25 @@ function Root() {
 
     // 获取单词本数据，将其放入本地存储中
     wordBookAPI
-      .getWordBookList({})
+      .getWordBookList({ pageNo: 1, pageSize: 10000 })
       .then((res: responseDataType<wordBookListType>) => {
         const { data, code, msg } = res
         if (code === 0) {
           const wordBookList = data.wordBookList
+          // 计算出单词和例句的总数
+          let totalWordCount = 0
+          let totalPhraseCount = 0
+          for (let i = 0; i < wordBookList.length; i++) {
+            const item = wordBookList[i]
+            if (item.type === 1) {
+              totalPhraseCount++
+              continue
+            }
+            totalWordCount++
+          }
           localStorage.setItem('wordBookList', JSON.stringify(wordBookList))
           // 生成分类数据
-          const remoteClassifiedData = mergeData(wordBookList)
+          const remoteClassifiedData = mergeData(wordBookList, totalWordCount, totalPhraseCount)
           localStorage.setItem('remoteClassifiedData', JSON.stringify(remoteClassifiedData))
           setWordBookLoadState(true)
           return
