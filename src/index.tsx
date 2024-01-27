@@ -6,6 +6,7 @@ import type { responseDataType, wordBookListType, wordBookRow } from '@/api/type
 import wordBookAPI from '@/api/wordBookAPI'
 import { isOpenDarkModeAtom, needLogin } from '@/store'
 import type { DictionaryResource } from '@/typings'
+import { calcChapterCount } from '@/utils'
 import { Notification } from '@arco-design/web-react'
 import { useAtomValue } from 'jotai'
 import { useSetAtom } from 'jotai/index'
@@ -47,6 +48,7 @@ function Root() {
             id: item.type === 1 ? item.bookName + '-Phrase' : item.bookName || '',
             name: bookNameWithPhrase || '',
             description: item.description || '',
+            chapterCount: item.type === 1 ? calcChapterCount(totalPhraseCount) : calcChapterCount(totalWordCount),
             category: '英文书籍',
             tags: item.type === 1 ? ['例句'] : ['单词'],
             url: '',

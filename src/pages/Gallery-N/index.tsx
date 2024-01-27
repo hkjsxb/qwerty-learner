@@ -1,7 +1,6 @@
 import DictionaryGroup from './CategoryDicts'
 import DictRequest from './DictRequest'
 import { LanguageTabSwitcher } from './LanguageTabSwitcher'
-import type { wordBookListType } from '@/api/type/WordBookType'
 import Layout from '@/components/Layout'
 import { dictionaries } from '@/resources/dictionary'
 import { currentDictInfoAtom, currentTabName } from '@/store'

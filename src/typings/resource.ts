@@ -4,6 +4,8 @@ export type DictionaryResource = {
   id: string
   name: string
   description: string
+  // 章节总数
+  chapterCount?: number
   category: string
   tags: string[]
   url: string
