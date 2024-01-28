@@ -71,7 +71,7 @@ export default function GalleryPage() {
       ([category, dicts]) => [category, groupByDictTags(dicts)] as [string, Record<string, Dictionary[]>],
     )
     // 单词本数据做特殊处理
-    if (curTabName === 'VocabularyBook') {
+    if (curTabName === 'VocabularyBook' || galleryState.currentLanguageTab === 'VocabularyBook') {
       const wordBookClassInfo = localStorage.getItem('remoteClassifiedData')
       if (wordBookClassInfo) {
         // 将单词本数据和单词本分类数据合并
