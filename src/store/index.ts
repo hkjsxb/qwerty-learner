@@ -5,6 +5,7 @@ import { idDictionaryMap } from '@/resources/dictionary'
 import { correctSoundResources, keySoundResources, wrongSoundResources } from '@/resources/soundResource'
 import type {
   Dictionary,
+  DictionaryResource,
   InfoPanelState,
   LoopWordTimesOption,
   PhoneticType,
@@ -25,14 +26,41 @@ export const needLogin = atomWithDefault(() => {
 export const currentTabName = atomWithDefault(() => {
   return 'en'
 })
+
+// 当前字典信息
 export const currentDictInfoAtom = atom<Dictionary>((get) => {
   const id = get(currentDictIdAtom)
+  // get方法用于获取store里存储的数据值
+  const existsInRemote = get(existsInRemoteData)
   let dict = idDictionaryMap[id]
-  // 如果 dict 不存在，则返回 cet4. Typing 中会检查 DictId 是否存在，如果不存在则会重置为 cet4
-  if (!dict) {
+  const remoteClassifiedData = localStorage.getItem('remoteClassifiedData')
+  // 本地词典中未找到且远程字典中包含了数据，则获取远程的字典数据
+  if (!dict && existsInRemote && remoteClassifiedData) {
+    const remoteDictList = JSON.parse(remoteClassifiedData)
+    dict = remoteDictList.find((item: DictionaryResource) => item.id === id)
+  }
+  // 如果 dict和远程字典 都未找到，则返回 cet4. Typing 中会检查 DictId 是否存在，如果不存在则会重置为 cet4
+  if (!dict && !existsInRemote) {
     dict = idDictionaryMap.cet4
   }
   return dict
+})
+
+// 检查当前字典是否存在于远程字典中
+export const existsInRemoteData = atom<boolean>((get) => {
+  const id = get(currentDictIdAtom)
+  const remoteClassifiedData = localStorage.getItem('remoteClassifiedData')
+  let existsInRemoteData = false
+  if (remoteClassifiedData) {
+    const classifiedData: Array<DictionaryResource> = JSON.parse(remoteClassifiedData)
+    for (let i = 0; i < classifiedData.length; i++) {
+      if (classifiedData[i].id === id) {
+        existsInRemoteData = true
+        break
+      }
+    }
+  }
+  return existsInRemoteData
 })
 
 export const currentChapterAtom = atomWithStorage('currentChapter', 0)
