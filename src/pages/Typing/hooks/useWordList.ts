@@ -1,3 +1,4 @@
+import type { wordBookRow } from '@/api/type/WordBookType'
 import { CHAPTER_LENGTH } from '@/constants'
 import { currentChapterAtom, currentDictInfoAtom, reviewModeInfoAtom } from '@/store'
 import type { Word, WordWithIndex } from '@/typings/index'
@@ -26,14 +27,27 @@ export function useWordList(): UseWordListResult {
   }
 
   const isFirstChapter = !isReviewMode && currentDictInfo.id === 'cet4' && currentChapter === 0
+  // 从URL中获取数据
+  const fileData = useSWR(currentDictInfo.url, wordListFetcher)
+  const { data: wordList } = fileData
+  let finalWordList: Word[] = []
+  const { isLoading, error } = fileData
+  const dictId = currentDictInfo.id
+  // 判断当前选择字典是否为短语
+  const isPhonetic = dictId.includes('-Phrase')
+  // 当前字典类型：1为短语，0为单词
+  const curDictType = isPhonetic ? 1 : 0
+  // 当前字典ID：如果是短语则将-Phrase去除
+  const curDictName = isPhonetic ? dictId.split('-Phrase')[0] : dictId
   if (currentDictInfo.languageCategory === 'VocabularyBook') {
     // 生词本的数据，从本地缓存中读取
-    // TODO：需要根据type将数据分为单词和例句两个分类，根据book_name和book_name拼出单词本的信息
     const wordBookList = localStorage.getItem('wordBookList')
-    console.log('生词本数据，从本地缓存中读取', wordBookList)
+    if (wordBookList) {
+      // 筛选出当前字典所需数据
+      const wordBook = JSON.parse(wordBookList)
+      finalWordList = wordBook.filter((item: wordBookRow) => item.bookName === curDictName && item.type === curDictType)
+    }
   }
-  // 从URL中获取数据
-  const { data: wordList, error, isLoading } = useSWR(currentDictInfo.url, wordListFetcher)
 
   const words: WordWithIndex[] = useMemo(() => {
     let newWords: Word[]
@@ -43,9 +57,9 @@ export function useWordList(): UseWordListResult {
       newWords = reviewRecord?.words ?? []
     } else if (wordList) {
       newWords = wordList.slice(currentChapter * CHAPTER_LENGTH, (currentChapter + 1) * CHAPTER_LENGTH)
-      console.log('当前筛选出来的数据', newWords)
     } else {
-      newWords = []
+      // 默认字典没有匹配到，则使用远程数据
+      newWords = finalWordList.slice(currentChapter * CHAPTER_LENGTH, (currentChapter + 1) * CHAPTER_LENGTH)
     }
 
     // 记录原始 index, 并对 word.trans 做兜底处理
