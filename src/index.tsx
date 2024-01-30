@@ -2,9 +2,9 @@ import Loading from './components/Loading'
 import './index.scss'
 import { ErrorBook } from './pages/ErrorBook'
 import TypingPage from './pages/Typing'
-import type { responseDataType, wordBookListType, wordBookRow } from '@/api/type/WordBookType'
+import type { responseDataType, wordBookCountType, wordBookListType, wordBookRow } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
-import { isOpenDarkModeAtom, needLogin } from '@/store'
+import { isOpenDarkModeAtom, needLogin, refreshWordBookAtom } from '@/store'
 import type { DictionaryResource } from '@/typings'
 import { calcChapterCount } from '@/utils'
 import { Notification } from '@arco-design/web-react'
@@ -36,11 +36,45 @@ function Root() {
   const [wordBookLoadState, setWordBookLoadState] = useState(false)
   const darkMode = useAtomValue(isOpenDarkModeAtom)
   const setNeedToLogIn = useSetAtom(needLogin)
+  const refreshWordBook = useAtomValue(refreshWordBookAtom)
+  const getWordbooksCount = (data: Array<wordBookRow>) => {
+    const categoryData: Set<string> = new Set()
+    data.forEach((item) => {
+      categoryData.add(item.bookName || '')
+    })
+    // 遍历categoryData, 计算单词和例句总数
+    const wordBooksCount: Array<wordBookCountType> = []
+    categoryData.forEach((value) => {
+      // 计算出单词和例句的总数
+      let totalWordCount = 0
+      let totalPhraseCount = 0
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i]
+        if (item.type === 1 && value === item.bookName) {
+          totalPhraseCount++
+        }
+        if (item.type === 0 && value === item.bookName) {
+          totalWordCount++
+        }
+      }
+      wordBooksCount.push({ name: value, totalWordCount, totalPhraseCount })
+    })
+    return wordBooksCount
+  }
   useEffect(() => {
-    const mergeData = (data: Array<wordBookRow>, totalWordCount: number, totalPhraseCount: number): DictionaryResource[] => {
+    const mergeData = (data: Array<wordBookRow>, countInfo: Array<wordBookCountType>): DictionaryResource[] => {
       const seen: Record<string, boolean> = {} // 记录已添加的组合
       const result: DictionaryResource[] = []
       data.forEach((item) => {
+        let totalPhraseCount = 0
+        let totalWordCount = 0
+        for (let i = 0; i < countInfo.length; i++) {
+          if (item.bookName === countInfo[i].name) {
+            totalWordCount = countInfo[i].totalWordCount
+            totalPhraseCount = countInfo[i].totalPhraseCount
+            break
+          }
+        }
         const bookNameWithPhrase = item.type === 1 ? item.bookName + ' Phrase' : item.bookName
         const key = `${bookNameWithPhrase} - ${item.description}` // 创建一个独特的键
         if (!seen[key]) {
@@ -63,41 +97,33 @@ function Root() {
       return result
     }
 
-    // 获取单词本数据，将其放入本地存储中
-    wordBookAPI
-      .getWordBookList({ pageNo: 1, pageSize: 10000 })
-      .then((res: responseDataType<wordBookListType>) => {
-        const { data, code, msg } = res
-        if (code === 0) {
-          const wordBookList = data.wordBookList
-          // 计算出单词和例句的总数
-          let totalWordCount = 0
-          let totalPhraseCount = 0
-          for (let i = 0; i < wordBookList.length; i++) {
-            const item = wordBookList[i]
-            if (item.type === 1) {
-              totalPhraseCount++
-              continue
-            }
-            totalWordCount++
+    if (!wordBookLoadState || refreshWordBook) {
+      // 获取单词本数据，将其放入本地存储中
+      wordBookAPI
+        .getWordBookList({ pageNo: 1, pageSize: 10000 })
+        .then((res: responseDataType<wordBookListType>) => {
+          const { data, code, msg } = res
+          if (code === 0) {
+            const wordBookList = data.wordBookList
+            const countInfo = getWordbooksCount(wordBookList)
+            localStorage.setItem('wordBookList', JSON.stringify(wordBookList))
+            // 生成分类数据
+            const remoteClassifiedData = mergeData(wordBookList, countInfo)
+            localStorage.setItem('remoteClassifiedData', JSON.stringify(remoteClassifiedData))
+            setWordBookLoadState(true)
+            return
           }
-          localStorage.setItem('wordBookList', JSON.stringify(wordBookList))
-          // 生成分类数据
-          const remoteClassifiedData = mergeData(wordBookList, totalWordCount, totalPhraseCount)
-          localStorage.setItem('remoteClassifiedData', JSON.stringify(remoteClassifiedData))
-          setWordBookLoadState(true)
-          return
-        }
-        Notification.error({
-          title: code,
-          content: msg,
-          showIcon: true,
-          position: 'bottomRight',
+          Notification.error({
+            title: code,
+            content: msg,
+            showIcon: true,
+            position: 'bottomRight',
+          })
         })
-      })
-      .catch(() => {
-        setWordBookLoadState(true)
-      })
+        .catch(() => {
+          setWordBookLoadState(true)
+        })
+    }
     if (darkMode) {
       document.body.setAttribute('arco-theme', 'dark')
       document.documentElement.classList.add('dark')
@@ -116,7 +142,7 @@ function Root() {
     return () => {
       window.removeEventListener('axiosCatchEvent', handleAxiosCatchEvent)
     }
-  }, [darkMode, setNeedToLogIn])
+  }, [darkMode, setNeedToLogIn, refreshWordBook, wordBookLoadState])
 
   if (!wordBookLoadState) {
     return <Loading />

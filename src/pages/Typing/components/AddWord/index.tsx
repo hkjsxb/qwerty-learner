@@ -1,9 +1,11 @@
 import type { responseDataType, wordBookRow } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
 import Layout from '@/components/Layout'
+import { defaultWordBookIdAtom, refreshWordBookAtom } from '@/store'
 import type { DictionaryResource } from '@/typings'
 import type { FormInstance } from '@arco-design/web-react'
 import { Button, Card, Form, Input, Notification, Select } from '@arco-design/web-react'
+import { useAtom, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useNavigate } from 'react-router-dom'
@@ -22,6 +24,8 @@ export default function AddWordPage() {
   const [form] = Form.useForm()
   const [description, setDescription] = useState('')
   const [descCanEdit, setDescCanEdit] = useState(false)
+  const setRefreshWordBookAtom = useSetAtom(refreshWordBookAtom)
+  const [defaultWordBookId, setDefaultWordBookId] = useAtom(defaultWordBookIdAtom)
   useHotkeys('esc', onBack, { preventDefault: true })
 
   useEffect(() => {
@@ -64,16 +68,19 @@ export default function AddWordPage() {
     }
   }
 
-  const saveFn = (data: wordBookRow) => {
-    wordBookAPI.addWords(data).then((res: responseDataType<string>) => {
+  const saveFn = (rowData: wordBookRow) => {
+    wordBookAPI.addWords(rowData).then((res: responseDataType<string>) => {
       const { code, data, msg } = res
       if (typeof code === 'number' && code === 0) {
+        setDefaultWordBookId(rowData.bookName || '')
         Notification.success({
           title: '添加成功',
           content: data,
           showIcon: true,
           position: 'bottomRight',
         })
+        // 刷新单词本列表
+        setRefreshWordBookAtom(true)
         // 清空表单输入的内容
         formRef?.current?.resetFields()
         return
@@ -97,7 +104,7 @@ export default function AddWordPage() {
               <FormItem label="单词本" field="bookName" rules={[{ required: true, message: '请选择一个单词本' }]}>
                 <Select allowCreate placeholder="请选择一个单词本（支持手动输入，会自动创建）" allowClear onChange={onBookNameChange}>
                   {bookNameOptions.map((option) => (
-                    <Option key={option} value={option}>
+                    <Option key={option} value={option} defaultValue={defaultWordBookId}>
                       {option}
                     </Option>
                   ))}

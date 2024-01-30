@@ -14,6 +14,8 @@ export type wordBookRow = {
   description?: string
 }
 
+export type wordBookCountType = { name: string; totalWordCount: number; totalPhraseCount: number }
+
 export type wordBookListType = {
   count: number
   wordBookList: Array<wordBookRow>

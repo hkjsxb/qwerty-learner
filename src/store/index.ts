@@ -22,6 +22,14 @@ export const needLogin = atomWithDefault(() => {
   return false
 })
 
+// 需要刷新单词本数据
+export const refreshWordBookAtom = atomWithDefault(() => {
+  return false
+})
+
+// 默认选中的单词本
+export const defaultWordBookIdAtom = atomWithStorage('defaultWordBookId', '')
+
 // Gallery页面当前选中的词典分类名
 export const currentTabName = atomWithDefault(() => {
   return 'en'
