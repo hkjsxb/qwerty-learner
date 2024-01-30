@@ -42,8 +42,11 @@ export default function AddWordPage() {
         }
       }
       setBookNameOptions(finalOptions)
+      // 设置默认单词本
+      form.setFieldsValue({ bookName: defaultWordBookId })
+      onBookNameChange(defaultWordBookId)
     }
-  }, [])
+  }, [defaultWordBookId, form])
 
   // 当描述字段改变时，更新表单数据
   useEffect(() => {
@@ -104,7 +107,7 @@ export default function AddWordPage() {
               <FormItem label="单词本" field="bookName" rules={[{ required: true, message: '请选择一个单词本' }]}>
                 <Select allowCreate placeholder="请选择一个单词本（支持手动输入，会自动创建）" allowClear onChange={onBookNameChange}>
                   {bookNameOptions.map((option) => (
-                    <Option key={option} value={option} defaultValue={defaultWordBookId}>
+                    <Option key={option} value={option}>
                       {option}
                     </Option>
                   ))}
