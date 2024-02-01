@@ -22,13 +22,13 @@ export default function AddWordPage() {
   const Option = Select.Option
   const [bookNameOptions, setBookNameOptions] = useState<Array<string>>([])
   const [form] = Form.useForm()
-  const [description, setDescription] = useState('')
   const [descCanEdit, setDescCanEdit] = useState(false)
+  const [refreshBookSelectState, setBookSelectState] = useState(false)
   const setRefreshWordBookAtom = useSetAtom(refreshWordBookAtom)
   const [defaultWordBookId, setDefaultWordBookId] = useAtom(defaultWordBookIdAtom)
   useHotkeys('esc', onBack, { preventDefault: true })
 
-  useEffect(() => {
+  const updateWordBookSelectData = useCallback(() => {
     // 从本地存储中获取单词本分类数据
     const remoteClassifiedData = localStorage.getItem('remoteClassifiedData')
     if (remoteClassifiedData) {
@@ -44,32 +44,30 @@ export default function AddWordPage() {
       setBookNameOptions(finalOptions)
       // 设置默认单词本
       form.setFieldsValue({ bookName: defaultWordBookId })
-      onBookNameChange(defaultWordBookId)
     }
   }, [defaultWordBookId, form])
 
-  // 当描述字段改变时，更新表单数据
-  useEffect(() => {
-    form.setFieldsValue({ description })
-  }, [description, form])
-
-  // 当单词本字段改变时，更新描述
-  const onBookNameChange = (value: string) => {
-    const remoteClassifiedData = localStorage.getItem('remoteClassifiedData')
-    if (remoteClassifiedData) {
-      const classifiedData: Array<DictionaryResource> = JSON.parse(remoteClassifiedData)
-      for (let i = 0; i < classifiedData.length; i++) {
-        const item = classifiedData[i]
-        if (item.name === value) {
-          setDescription(item.description)
-          return
+  // 设置单词本描述
+  const setDescription = useCallback(
+    (value: string) => {
+      const remoteClassifiedData = localStorage.getItem('remoteClassifiedData')
+      if (remoteClassifiedData) {
+        const classifiedData: Array<DictionaryResource> = JSON.parse(remoteClassifiedData)
+        for (let i = 0; i < classifiedData.length; i++) {
+          const item = classifiedData[i]
+          if (item.name === value) {
+            form.setFieldsValue({ description: item.description })
+            setDescCanEdit(false)
+            return
+          }
         }
+        // 没有找到对应的单词本信息，允许描述字段的编辑，视为新增单词本
+        form.setFieldsValue({ description: '' })
+        setDescCanEdit(true)
       }
-      // 没有找到对应的单词本信息，允许描述字段的编辑，视为新增单词本
-      setDescription('')
-      setDescCanEdit(true)
-    }
-  }
+    },
+    [form],
+  )
 
   const saveFn = (rowData: wordBookRow) => {
     wordBookAPI.addWords(rowData).then((res: responseDataType<string>) => {
@@ -86,6 +84,10 @@ export default function AddWordPage() {
         setRefreshWordBookAtom(true)
         // 清空表单输入的内容
         formRef?.current?.resetFields()
+        // 如果单词本名称或者描述为空则尝试从本地寻找
+        if (!form.getFieldValue('bookName') || !form.getFieldValue('description')) {
+          setBookSelectState(true)
+        }
         return
       }
       Notification.error({
@@ -96,6 +98,20 @@ export default function AddWordPage() {
       })
     })
   }
+  // defaultWordBookId变化时执行
+  useEffect(() => {
+    updateWordBookSelectData()
+    setDescription(defaultWordBookId)
+  }, [defaultWordBookId, setDescription, updateWordBookSelectData])
+
+  // refreshBookSelectState变化时执行（函数已经用useCallback包裹了不需要担心useEffect的重复监听问题）
+  useEffect(() => {
+    if (refreshBookSelectState) {
+      updateWordBookSelectData()
+      setDescription(defaultWordBookId)
+      setBookSelectState(false)
+    }
+  }, [defaultWordBookId, refreshBookSelectState, setDescription, updateWordBookSelectData])
 
   return (
     <Layout>
@@ -105,7 +121,7 @@ export default function AddWordPage() {
           <Card style={{ width: 600 }} title="单词录入">
             <Form autoComplete="off" colon={true} onSubmit={saveFn} ref={formRef} form={form}>
               <FormItem label="单词本" field="bookName" rules={[{ required: true, message: '请选择一个单词本' }]}>
-                <Select allowCreate placeholder="请选择一个单词本（支持手动输入，会自动创建）" allowClear onChange={onBookNameChange}>
+                <Select allowCreate placeholder="请选择一个单词本（支持手动输入，会自动创建）" allowClear onChange={setDescription}>
                   {bookNameOptions.map((option) => (
                     <Option key={option} value={option}>
                       {option}
