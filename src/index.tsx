@@ -4,11 +4,11 @@ import { ErrorBook } from './pages/ErrorBook'
 import TypingPage from './pages/Typing'
 import type { responseDataType, wordBookCountType, wordBookListType, wordBookRow } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
-import { isOpenDarkModeAtom, needLogin, refreshWordBookAtom } from '@/store'
+import { isOpenDarkModeAtom, needLogin, refreshWordBookAtom, refreshWordBookDescAtom } from '@/store'
 import type { DictionaryResource } from '@/typings'
 import { calcChapterCount } from '@/utils'
 import { Notification } from '@arco-design/web-react'
-import { useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { useSetAtom } from 'jotai/index'
 import mixpanel from 'mixpanel-browser'
 import process from 'process'
@@ -36,7 +36,8 @@ function Root() {
   const [wordBookLoadState, setWordBookLoadState] = useState(false)
   const darkMode = useAtomValue(isOpenDarkModeAtom)
   const setNeedToLogIn = useSetAtom(needLogin)
-  const refreshWordBook = useAtomValue(refreshWordBookAtom)
+  const [refreshWordBook, setRefreshWordBookAtom] = useAtom(refreshWordBookAtom)
+  const setRefreshWordBookDescState = useSetAtom(refreshWordBookDescAtom)
   const getWordbooksCount = (data: Array<wordBookRow>) => {
     const categoryData: Set<string> = new Set()
     data.forEach((item) => {
@@ -110,6 +111,10 @@ function Root() {
             // 生成分类数据
             const remoteClassifiedData = mergeData(wordBookList, countInfo)
             localStorage.setItem('remoteClassifiedData', JSON.stringify(remoteClassifiedData))
+            // 刷新单词本的描述字段
+            setRefreshWordBookDescState(true)
+            // 还原单词本刷新状态
+            setRefreshWordBookAtom(false)
             setWordBookLoadState(true)
             return
           }
@@ -142,7 +147,7 @@ function Root() {
     return () => {
       window.removeEventListener('axiosCatchEvent', handleAxiosCatchEvent)
     }
-  }, [darkMode, setNeedToLogIn, refreshWordBook, wordBookLoadState])
+  }, [darkMode, setNeedToLogIn, refreshWordBook, wordBookLoadState, setRefreshWordBookDescState, setRefreshWordBookAtom])
 
   if (!wordBookLoadState) {
     return <Loading />

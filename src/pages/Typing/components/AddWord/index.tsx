@@ -1,7 +1,7 @@
 import type { responseDataType, wordBookRow } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
 import Layout from '@/components/Layout'
-import { defaultWordBookIdAtom, refreshWordBookAtom } from '@/store'
+import { defaultWordBookIdAtom, refreshWordBookAtom, refreshWordBookDescAtom } from '@/store'
 import type { DictionaryResource } from '@/typings'
 import type { FormInstance } from '@arco-design/web-react'
 import { Button, Card, Form, Input, Notification, Select } from '@arco-design/web-react'
@@ -25,6 +25,7 @@ export default function AddWordPage() {
   const [descCanEdit, setDescCanEdit] = useState(false)
   const [refreshBookSelectState, setBookSelectState] = useState(false)
   const setRefreshWordBookAtom = useSetAtom(refreshWordBookAtom)
+  const [refreshWordBookDesc, setRefreshWordBookDescState] = useAtom(refreshWordBookDescAtom)
   const [defaultWordBookId, setDefaultWordBookId] = useAtom(defaultWordBookIdAtom)
   useHotkeys('esc', onBack, { preventDefault: true })
 
@@ -104,14 +105,22 @@ export default function AddWordPage() {
     setDescription(defaultWordBookId)
   }, [defaultWordBookId, setDescription, updateWordBookSelectData])
 
-  // refreshBookSelectState变化时执行（函数已经用useCallback包裹了不需要担心useEffect的重复监听问题）
+  // refreshBookSelectState、refreshWordBookDesc变化时执行（函数已经用useCallback包裹了不需要担心useEffect的重复监听问题）
   useEffect(() => {
-    if (refreshBookSelectState) {
+    if (refreshBookSelectState || refreshWordBookDesc) {
       updateWordBookSelectData()
       setDescription(defaultWordBookId)
       setBookSelectState(false)
+      setRefreshWordBookDescState(false)
     }
-  }, [defaultWordBookId, refreshBookSelectState, setDescription, updateWordBookSelectData])
+  }, [
+    defaultWordBookId,
+    refreshWordBookDesc,
+    refreshBookSelectState,
+    setDescription,
+    updateWordBookSelectData,
+    setRefreshWordBookDescState,
+  ])
 
   return (
     <Layout>

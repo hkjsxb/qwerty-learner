@@ -27,6 +27,11 @@ export const refreshWordBookAtom = atomWithDefault(() => {
   return false
 })
 
+// 需要刷新单词本描述
+export const refreshWordBookDescAtom = atomWithDefault(() => {
+  return false
+})
+
 // 默认选中的单词本
 export const defaultWordBookIdAtom = atomWithStorage('defaultWordBookId', '')
 
