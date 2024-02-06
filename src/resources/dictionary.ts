@@ -1,5 +1,18 @@
 import type { Dictionary, DictionaryResource } from '@/typings/index'
 import { calcChapterCount } from '@/utils'
+import process from 'process'
+
+// 纠正url地址
+const fixdictionaryUrl = (data: DictionaryResource[]) => {
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i]
+    // 生产环境
+    if (process.env.NODE_ENV === 'production') {
+      item.url = '/english-study' + item.url
+    }
+  }
+  return data
+}
 
 // 中国考试
 const chinaExam: DictionaryResource[] = [
@@ -2853,13 +2866,13 @@ const vocabularyBook: Array<DictionaryResource> = []
  * Why arrays? Because it keeps the order across browsers.
  */
 export const dictionaryResources: DictionaryResource[] = [
-  ...chinaExam,
-  ...internationalExam,
-  ...childrenEnglish,
-  ...programming,
-  ...japaneseExam,
-  ...germanExam,
-  ...vocabularyBook,
+  ...fixdictionaryUrl(chinaExam),
+  ...fixdictionaryUrl(internationalExam),
+  ...fixdictionaryUrl(childrenEnglish),
+  ...fixdictionaryUrl(programming),
+  ...fixdictionaryUrl(japaneseExam),
+  ...fixdictionaryUrl(germanExam),
+  ...fixdictionaryUrl(vocabularyBook),
 
   // {
   //   id: 'zhtest',
