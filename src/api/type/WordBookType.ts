@@ -45,3 +45,20 @@ export type TransformedData = {
   单词?: DictionaryResource[]
   例句?: DictionaryResource[]
 }
+
+export type authLoginType = 'github' | 'gitee' | 'baidu' | 'oschina' | 'coding'
+
+// 获取第三方授权链接服务端返回data类型定义
+export type getAuthorizeDataType = {
+  authorizeUrl: string // 授权链接
+  state: string // 状态码
+}
+
+export type userInfoType = {
+  token: string
+  userID: string
+  username: string
+  refreshToken: string
+  avatarSrc: string
+  isInitedPassword: boolean
+}

@@ -76,6 +76,8 @@ export const existsInRemoteData = atom<boolean>((get) => {
   return existsInRemoteData
 })
 
+export const authInfoAtom = atomWithStorage('authInfo', { state: '', platformName: '' })
+
 export const currentChapterAtom = atomWithStorage('currentChapter', 0)
 
 export const loopWordConfigAtom = atomForConfig<{ times: LoopWordTimesOption }>('loopWordConfig', {
