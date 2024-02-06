@@ -6,7 +6,7 @@ import { authInfoAtom, needLogin } from '@/store'
 import { Button, Card, Divider, Form, Grid, Input, Notification, Tooltip, Typography } from '@arco-design/web-react'
 import { useAtom } from 'jotai'
 import { useSetAtom } from 'jotai/index'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useNavigate } from 'react-router-dom'
 import IconX from '~icons/tabler/x'
@@ -51,60 +51,64 @@ export default function Login() {
     })
   }
 
-  const authLogin = (state: string, code: string, platform: string) => {
-    authLoginAPI
-      .authorizeLogin({
-        state,
-        code,
-        platform,
-      })
-      .then(async (res: responseDataType<userInfoType>) => {
-        if (res.code == 0) {
-          Notification.success({
-            title: '登录成功',
-            content: '欢迎回来',
-            showIcon: true,
-            position: 'bottomRight',
+  // 获取授权码
+  const getAuthCode = useCallback(
+    (event: StorageEvent) => {
+      const authLogin = (state: string, code: string, platform: string) => {
+        authLoginAPI
+          .authorizeLogin({
+            state,
+            code,
+            platform,
           })
-          setNeedToLogIn(false)
-          const userId = res.data.userID
-          const username = res.data.username
-          const token = res.data.token
-          const refreshToken = res.data.refreshToken
-          const profilePicture = res.data.avatarSrc
-          const isInitPassword = res.data.isInitedPassword
-          // 存储当前用户信息
-          localStorage.setItem('token', token)
-          localStorage.setItem('refreshToken', refreshToken)
-          localStorage.setItem('profilePicture', profilePicture)
-          localStorage.setItem('userID', userId)
-          localStorage.setItem('username', username)
-          localStorage.setItem('isInitedPassword', String(isInitPassword))
-          navigate('/')
+          .then(async (res: responseDataType<userInfoType>) => {
+            if (res.code == 0) {
+              Notification.success({
+                title: '登录成功',
+                content: '欢迎回来',
+                showIcon: true,
+                position: 'bottomRight',
+              })
+              setNeedToLogIn(false)
+              const userId = res.data.userID
+              const username = res.data.username
+              const token = res.data.token
+              const refreshToken = res.data.refreshToken
+              const profilePicture = res.data.avatarSrc
+              const isInitPassword = res.data.isInitedPassword
+              // 存储当前用户信息
+              localStorage.setItem('token', token)
+              localStorage.setItem('refreshToken', refreshToken)
+              localStorage.setItem('profilePicture', profilePicture)
+              localStorage.setItem('userID', userId)
+              localStorage.setItem('username', username)
+              localStorage.setItem('isInitedPassword', String(isInitPassword))
+              navigate('/')
+              return
+            }
+            // 弹出报错信息
+            Notification.error({
+              title: '登录失败',
+              content: res.msg,
+              showIcon: true,
+              position: 'bottomRight',
+            })
+          })
+      }
+      // 如果当前改变的key是authCode则执行登录逻辑
+      if (event.key === 'authCode') {
+        const code = localStorage.getItem('authCode')
+        localStorage.removeItem('authCode')
+        if (code) {
+          // 开始登录
+          authLogin(authInfo.state, code, authInfo.platformName)
           return
         }
-        // 弹出报错信息
-        Notification.error({
-          title: '登录失败',
-          content: res.msg,
-          showIcon: true,
-          position: 'bottomRight',
-        })
-      })
-  }
-  // 获取授权码
-  const getAuthCode = () => {
-    const code = localStorage.getItem('authCode')
-    localStorage.removeItem('authCode')
-    // 移除localStorage监听
-    window.removeEventListener('storage', getAuthCode)
-    if (code) {
-      // 状态改为正在登录
-      authLogin(authInfo.state, code, authInfo.platformName)
-      return
-    }
-    throw authInfo.platformName + '授权码获取失败'
-  }
+        throw authInfo.platformName + '授权码获取失败'
+      }
+    },
+    [authInfo.platformName, authInfo.state, navigate, setNeedToLogIn],
+  )
 
   // 获取授权链接
   const getAuthorize = (name: authLoginType) => {
@@ -114,10 +118,17 @@ export default function Login() {
       setAuthInfo({ state: res.data.state, platformName: name })
       // 打开授权窗口
       window.open(res.data.authorizeUrl, '_blank', 'toolbar=no,width=800, height=600')
-      // 开始监听localStorage,获取授权码
-      window.addEventListener('storage', getAuthCode)
     })
   }
+
+  useEffect(() => {
+    // 开始监听localStorage,获取授权码
+    window.addEventListener('storage', getAuthCode)
+    // 组件卸载时移除监听器
+    return () => {
+      window.removeEventListener('storage', getAuthCode)
+    }
+  }, [getAuthCode])
 
   return (
     <Layout>
