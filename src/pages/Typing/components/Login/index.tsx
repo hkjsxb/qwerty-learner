@@ -2,7 +2,7 @@ import authLoginAPI from '@/api/authLoginAPI'
 import type { authLoginType, getAuthorizeDataType, responseDataType, userInfoType } from '@/api/type/WordBookType'
 import { BaiduIcon, CodingIcon, GiteeIcon, GithubIcon, OSChinaIcon } from '@/assets/svg/AuthIcon'
 import Layout from '@/components/Layout'
-import { authInfoAtom, needLogin } from '@/store'
+import { authInfoAtom, needLogin, refreshWordBookAtom } from '@/store'
 import { Button, Card, Divider, Form, Grid, Input, Notification, Tooltip, Typography } from '@arco-design/web-react'
 import { useAtom } from 'jotai'
 import { useSetAtom } from 'jotai/index'
@@ -14,6 +14,7 @@ import IconX from '~icons/tabler/x'
 export default function Login() {
   const navigate = useNavigate()
   const setNeedToLogIn = useSetAtom(needLogin)
+  const setRefreshWordBookAtom = useSetAtom(refreshWordBookAtom)
   const [authInfo, setAuthInfo] = useAtom(authInfoAtom)
   const onBack = useCallback(() => {
     navigate('/')
@@ -39,6 +40,7 @@ export default function Login() {
         localStorage.setItem('userId', data.userID)
         localStorage.setItem('userName', data.username)
         localStorage.setItem('refreshToken', data.refreshToken)
+        setRefreshWordBookAtom(true)
         navigate('/')
         return
       }
@@ -83,6 +85,7 @@ export default function Login() {
               localStorage.setItem('userID', userId)
               localStorage.setItem('username', username)
               localStorage.setItem('isInitedPassword', String(isInitPassword))
+              setRefreshWordBookAtom(true)
               navigate('/')
               return
             }
