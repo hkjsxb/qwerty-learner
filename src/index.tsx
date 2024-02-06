@@ -155,7 +155,7 @@ function Root() {
 
   return (
     <React.StrictMode>
-      <BrowserRouter basename={REACT_APP_DEPLOY_ENV === 'pages' ? '/qwerty-learner' : ''}>
+      <BrowserRouter basename={process.env.NODE_ENV === 'development' ? '' : '/english-study'}>
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route index element={<TypingPage />} />
