@@ -46,7 +46,7 @@ export default function DictionaryGroup({ groupedDictsByTag }: { groupedDictsByT
         description={
           <div className="flex items-center justify-center">
             尚未添加单词数据，去
-            <Link className="flex items-center">
+            <Link style={{ display: 'flex', alignItems: 'center' }}>
               <IconAddWord width={14} height={14} className="mr-1" />
               <NavLink to="/add-word">添加</NavLink>
             </Link>
