@@ -86,6 +86,8 @@ _axios.interceptors.response.use(
                   status: false,
                 })
                 .then(() => {
+                  // 清空队列
+                  requests = []
                   // 删除token并刷新页面
                   localStorage.removeItem('token')
                   location.reload()
