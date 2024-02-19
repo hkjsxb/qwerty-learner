@@ -37,9 +37,13 @@ export default function AddWordPage() {
       const finalOptions = []
       for (let i = 0; i < classifiedData.length; i++) {
         const item = classifiedData[i]
-        // 不包含例句且当前单词本未插入到finalOptions中
-        if (!item.id.includes('-Phrase') && finalOptions.indexOf(item.name) === -1) {
-          finalOptions.push(item.name)
+        if (finalOptions.indexOf(item.name) === -1) {
+          let finalName = item.name
+          if (item.id.includes('-Phrase')) {
+            // 去掉 Phrase
+            finalName = finalName.slice(0, -7)
+          }
+          finalOptions.push(finalName)
         }
       }
       setBookNameOptions(finalOptions)
@@ -56,7 +60,8 @@ export default function AddWordPage() {
         const classifiedData: Array<DictionaryResource> = JSON.parse(remoteClassifiedData)
         for (let i = 0; i < classifiedData.length; i++) {
           const item = classifiedData[i]
-          if (item.name === value) {
+          // 匹配单词和短语
+          if (item.name === value || item.name.slice(0, -7) === value) {
             form.setFieldsValue({ description: item.description })
             setDescCanEdit(false)
             return
