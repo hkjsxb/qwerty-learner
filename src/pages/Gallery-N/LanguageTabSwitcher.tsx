@@ -36,7 +36,7 @@ export function LanguageTabSwitcher() {
         draft.currentLanguageTab = tab as LanguageCategoryType
       })
     },
-    [setState],
+    [setCurTabName, setState],
   )
 
   return (

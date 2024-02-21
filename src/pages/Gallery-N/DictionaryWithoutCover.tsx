@@ -43,7 +43,7 @@ export default function DictionaryComponent({ dictionary }: Props) {
           <div className="relative ml-1 mt-2 flex h-full w-full flex-col items-start justify-start">
             <h1
               className={`mb-1.5 text-xl font-normal  ${
-                isSelected ? 'text-white' : 'text-gray-800 group-hover:text-indigo-400 dark:text-gray-200'
+                isSelected ? 'text-violet-500 dark:text-white' : 'text-gray-800 group-hover:text-indigo-400 dark:text-gray-200'
               }`}
             >
               {dictionary.name}
@@ -53,7 +53,7 @@ export default function DictionaryComponent({ dictionary }: Props) {
                 <TooltipTrigger asChild>
                   <p
                     className={`mb-1 max-w-full truncate ${
-                      isSelected ? 'text-white' : 'textdelayDuration-gray-600 dark:text-gray-200'
+                      isSelected ? 'text-violet-500 dark:text-white' : 'textdelayDuration-gray-600 dark:text-gray-200'
                     } whitespace-nowrap`}
                   >
                     {dictionary.description}
@@ -65,7 +65,9 @@ export default function DictionaryComponent({ dictionary }: Props) {
               </Tooltip>
             </TooltipProvider>
 
-            <p className={`mb-0.5 font-bold  ${isSelected ? 'text-white' : 'text-gray-600 dark:text-gray-200'}`}>{dictionary.length} 词</p>
+            <p className={`mb-0.5 font-bold  ${isSelected ? 'text-violet-500 dark:text-white' : 'text-gray-600 dark:text-gray-200'}`}>
+              {dictionary.length} 词
+            </p>
             <div className=" flex w-full items-center pt-2">
               {progress > 0 && (
                 <Progress.Root

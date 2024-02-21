@@ -2,7 +2,7 @@ import DictionaryGroup from './CategoryDicts'
 import { LanguageTabSwitcher } from './LanguageTabSwitcher'
 import Layout from '@/components/Layout'
 import { dictionaries } from '@/resources/dictionary'
-import { currentDictInfoAtom, currentTabName } from '@/store'
+import { currentDictInfoAtom } from '@/store'
 import type { Dictionary, DictionaryResource, LanguageCategoryType } from '@/typings'
 import groupBy, { groupByDictTags } from '@/utils/groupBy'
 import * as ScrollArea from '@radix-ui/react-scroll-area'
@@ -32,7 +32,6 @@ export default function GalleryPage() {
   const [galleryState, setGalleryState] = useImmer<GalleryState>(initialGalleryState)
   const navigate = useNavigate()
   const currentDictInfo = useAtomValue(currentDictInfoAtom)
-  const curTabName = useAtomValue(currentTabName)
 
   const transformData = (
     input: DictionaryResource[],
@@ -70,7 +69,7 @@ export default function GalleryPage() {
       ([category, dicts]) => [category, groupByDictTags(dicts)] as [string, Record<string, Dictionary[]>],
     )
     // 单词本数据做特殊处理
-    if (curTabName === 'VocabularyBook' || galleryState.currentLanguageTab === 'VocabularyBook') {
+    if (galleryState.currentLanguageTab === 'VocabularyBook') {
       const wordBookClassInfo = localStorage.getItem('remoteClassifiedData')
       if (wordBookClassInfo) {
         // 将单词本数据和单词本分类数据合并
@@ -83,7 +82,7 @@ export default function GalleryPage() {
     return {
       groupedByCategoryAndTag,
     }
-  }, [curTabName, galleryState.currentLanguageTab])
+  }, [galleryState.currentLanguageTab])
 
   const onBack = useCallback(() => {
     navigate('/')
@@ -93,6 +92,7 @@ export default function GalleryPage() {
 
   useEffect(() => {
     if (currentDictInfo) {
+      // 更改当前默认选中的tab
       setGalleryState((state) => {
         state.currentLanguageTab = currentDictInfo.languageCategory
       })

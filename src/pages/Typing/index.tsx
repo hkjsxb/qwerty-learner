@@ -63,7 +63,7 @@ const App: React.FC = () => {
         )
       }, 500)
     }
-  }, [])
+  }, [loginStatus, navigate])
 
   // 在组件挂载和currentDictId改变时，检查当前字典是否存在，如果不存在，则将其重置为默认值
   useEffect(() => {

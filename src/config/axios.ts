@@ -32,6 +32,22 @@ const defaultConfig = {
 
 // 创建实例
 const _axios = axiosObj.create(defaultConfig)
+
+let tokenRenewFail = false
+
+// token续期失败的错误处理
+const renewalFailedFn = (reason: string) => {
+  // 触发自定义事件，告知组件需要更新全局状态
+  const axiosCatchEvent = new CustomEvent('axiosCatchEvent', { detail: { reason, type: 'needLogin' } })
+  window.dispatchEvent(axiosCatchEvent)
+  Notification.error({
+    title: '未登录',
+    content: '请先登录',
+    showIcon: true,
+    position: 'bottomRight',
+  })
+}
+
 // 请求拦截器
 _axios.interceptors.request.use(
   function (config) {
@@ -51,6 +67,12 @@ _axios.interceptors.request.use(
 // 响应拦截器
 _axios.interceptors.response.use(
   function (response: AxiosResponse) {
+    // token续期失败
+    if (tokenRenewFail) {
+      renewalFailedFn('token续期失败')
+      tokenRenewFail = false
+      return Promise.reject('token续期失败')
+    }
     // token过期，续期token
     if (response.data?.code === 401) {
       // 原请求的配置
@@ -78,32 +100,26 @@ _axios.interceptors.response.use(
               requests = []
               // 重试当前请求并返回promise
               return _axios(config)
-            } else {
-              // 修改登录状态
-              authLoginAPI
-                .updateOnlineStatus({
-                  userId: window.localStorage.getItem('userId') || '',
-                  status: false,
-                })
-                .then(() => {
-                  // 清空队列
-                  requests = []
-                  // 删除token并刷新页面
-                  localStorage.removeItem('token')
-                  location.reload()
-                })
             }
+            // 清空队列
+            requests = []
+            // 删除token
+            localStorage.removeItem('token')
+            // 修改登录状态
+            authLoginAPI
+              .updateOnlineStatus({
+                userId: window.localStorage.getItem('userId') || '',
+                status: false,
+              })
+              .then((data: responseDataType) => {
+                renewalFailedFn(data.msg || '退出登录成功')
+              })
+              .catch(() => {
+                tokenRenewFail = true
+              })
           })
           .catch((reason) => {
-            // 触发自定义事件，告知组件需要更新全局状态
-            const axiosCatchEvent = new CustomEvent('axiosCatchEvent', { detail: { reason, type: 'needLogin' } })
-            window.dispatchEvent(axiosCatchEvent)
-            Notification.error({
-              title: '未登录',
-              content: '请先登录',
-              showIcon: true,
-              position: 'bottomRight',
-            })
+            renewalFailedFn(reason)
             throw reason
           })
           .finally(() => {
