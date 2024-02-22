@@ -1,5 +1,6 @@
 import atomForConfig from './atomForConfig'
 import { reviewInfoAtom } from './reviewInfoAtom'
+import type { wordBookListType, wordBookRow } from '@/api/type/WordBookType'
 import { DISMISS_START_CARD_DATE_KEY, defaultFontSizeConfig } from '@/constants'
 import { idDictionaryMap } from '@/resources/dictionary'
 import { correctSoundResources, keySoundResources, wrongSoundResources } from '@/resources/soundResource'
@@ -122,6 +123,8 @@ export const randomConfigAtom = atomForConfig('randomConfig', {
 })
 
 export const isShowPrevAndNextWordAtom = atomWithStorage('isShowPrevAndNextWord', true)
+export const wordBookListAtom = atomWithStorage<Array<wordBookRow>>('wordBookList', [])
+export const wordBookListCountAtom = atomWithStorage('wordBookListCount', 0)
 
 export const isIgnoreCaseAtom = atomWithStorage('isIgnoreCase', true)
 

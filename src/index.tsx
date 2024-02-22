@@ -4,7 +4,15 @@ import { ErrorBook } from './pages/ErrorBook'
 import TypingPage from './pages/Typing'
 import type { responseDataType, wordBookCountType, wordBookListType, wordBookRow } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
-import { isOpenDarkModeAtom, needLogin, refreshWordBookAtom, refreshWordBookDescAtom } from '@/store'
+import VocabularyManage from '@/pages/Typing/components/VocabularyManage'
+import {
+  isOpenDarkModeAtom,
+  needLogin,
+  refreshWordBookAtom,
+  refreshWordBookDescAtom,
+  wordBookListAtom,
+  wordBookListCountAtom,
+} from '@/store'
 import type { DictionaryResource } from '@/typings'
 import { calcChapterCount } from '@/utils'
 import { Notification } from '@arco-design/web-react'
@@ -36,6 +44,8 @@ function Root() {
   const [wordBookLoadState, setWordBookLoadState] = useState(false)
   const darkMode = useAtomValue(isOpenDarkModeAtom)
   const setNeedToLogIn = useSetAtom(needLogin)
+  const setWordBookListAtom = useSetAtom(wordBookListAtom)
+  const setWordBookListCount = useSetAtom(wordBookListCountAtom)
   const [refreshWordBook, setRefreshWordBookAtom] = useAtom(refreshWordBookAtom)
   const setRefreshWordBookDescState = useSetAtom(refreshWordBookDescAtom)
   const getWordbooksCount = (data: Array<wordBookRow>) => {
@@ -107,7 +117,8 @@ function Root() {
           if (code === 0) {
             const wordBookList = data.wordBookList
             const countInfo = getWordbooksCount(wordBookList)
-            localStorage.setItem('wordBookList', JSON.stringify(wordBookList))
+            setWordBookListAtom(wordBookList)
+            setWordBookListCount(data.count)
             // 生成分类数据
             const remoteClassifiedData = mergeData(wordBookList, countInfo)
             localStorage.setItem('remoteClassifiedData', JSON.stringify(remoteClassifiedData))
@@ -164,6 +175,7 @@ function Root() {
             <Route path="/error-book" element={<ErrorBook />} />
             <Route path="/add-word" element={<AddWordPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/mange-word" element={<VocabularyManage />} />
             <Route path="/*" element={<Navigate to="/" />} />
           </Routes>
         </Suspense>

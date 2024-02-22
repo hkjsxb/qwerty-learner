@@ -8,7 +8,7 @@ import SoundSwitcher from '../SoundSwitcher'
 import WordDictationSwitcher from '../WordDictationSwitcher'
 import Tooltip from '@/components/Tooltip'
 import AddWordButton from '@/pages/Typing/components/AddWord/AddWordButton'
-import LoginButton from '@/pages/Typing/components/Login/LoginButton'
+import ManageButton from '@/pages/Typing/components/VocabularyManage/ManageButton'
 import { isOpenDarkModeAtom } from '@/store'
 import { CTRL } from '@/utils'
 import { useAtom } from 'jotai'
@@ -101,8 +101,8 @@ export default function Switcher() {
         <Setting />
       </Tooltip>
 
-      <Tooltip content="登录">
-        <LoginButton />
+      <Tooltip content="管理单词/短语">
+        <ManageButton />
       </Tooltip>
     </div>
   )
