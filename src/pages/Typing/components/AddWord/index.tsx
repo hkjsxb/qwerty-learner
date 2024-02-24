@@ -6,6 +6,7 @@ import type { DictionaryResource } from '@/typings'
 import type { FormInstance } from '@arco-design/web-react'
 import { Button, Card, Form, Input, Notification, Select } from '@arco-design/web-react'
 import { useAtom, useSetAtom } from 'jotai'
+import type { KeyboardEventHandler } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useNavigate } from 'react-router-dom'
@@ -74,6 +75,13 @@ export default function AddWordPage() {
     },
     [form],
   )
+
+  // 触发表单校验
+  const handleEnter: KeyboardEventHandler = (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      form.submit()
+    }
+  }
 
   const saveFn = (rowData: wordBookRow) => {
     wordBookAPI.addWords(rowData).then((res: responseDataType<string>) => {
@@ -155,7 +163,7 @@ export default function AddWordPage() {
                 />
               </FormItem>
               <FormItem label="中文" field="trans" rules={[{ required: true, message: '请输入中文释义' }]}>
-                <TextArea placeholder="中文释义" autoSize={{ minRows: 2, maxRows: 6 }} />
+                <TextArea placeholder="中文释义" autoSize={{ minRows: 2, maxRows: 6 }} onKeyDown={handleEnter} />
               </FormItem>
               <FormItem label="音标（美）" field="usphone">
                 <Input placeholder="美音音标" />
