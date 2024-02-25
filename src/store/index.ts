@@ -36,9 +36,20 @@ export const refreshWordBookDescAtom = atomWithDefault(() => {
 // 默认选中的单词本
 export const defaultWordBookIdAtom = atomWithStorage('defaultWordBookId', '')
 
+// 用户信息
+export const userInfoAtom = atomWithStorage<{ avatarSrc: string; userID: string; username: string }>('userInfo', {
+  avatarSrc: '',
+  userID: '',
+  username: '',
+})
+
 // Gallery页面当前选中的词典分类名
 export const currentTabName = atomWithDefault(() => {
   return 'en'
+})
+
+export const settingsIsOpenAtom = atomWithDefault(() => {
+  return false
 })
 
 // 当前字典信息

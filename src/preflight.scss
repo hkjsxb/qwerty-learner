@@ -265,6 +265,11 @@ Correct the cursor style of increment and decrement buttons in Safari.
   outline-offset: -2px; /* 2 */
 }
 
+[type='password'],
+[type='text'] {
+  font-size: inherit;
+}
+
 /*
 Remove the inner padding in Chrome and Safari on macOS.
 */

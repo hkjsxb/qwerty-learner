@@ -2,7 +2,7 @@ import authLoginAPI from '@/api/authLoginAPI'
 import type { authLoginType, getAuthorizeDataType, responseDataType, userInfoType } from '@/api/type/WordBookType'
 import { BaiduIcon, CodingIcon, GiteeIcon, GithubIcon, OSChinaIcon } from '@/assets/svg/AuthIcon'
 import Layout from '@/components/Layout'
-import { authInfoAtom, needLogin, refreshWordBookAtom } from '@/store'
+import { authInfoAtom, needLogin, refreshWordBookAtom, userInfoAtom } from '@/store'
 import { Button, Card, Divider, Form, Grid, Input, Notification, Tooltip, Typography } from '@arco-design/web-react'
 import { useAtom } from 'jotai'
 import { useSetAtom } from 'jotai/index'
@@ -15,6 +15,7 @@ export default function Login() {
   const navigate = useNavigate()
   const setNeedToLogIn = useSetAtom(needLogin)
   const setRefreshWordBookAtom = useSetAtom(refreshWordBookAtom)
+  const setUserInfo = useSetAtom(userInfoAtom)
   const [authInfo, setAuthInfo] = useAtom(authInfoAtom)
   const onBack = useCallback(() => {
     navigate('/')
@@ -37,9 +38,8 @@ export default function Login() {
         })
         setNeedToLogIn(false)
         localStorage.setItem('token', data.token)
-        localStorage.setItem('userId', data.userID)
-        localStorage.setItem('userName', data.username)
         localStorage.setItem('refreshToken', data.refreshToken)
+        setUserInfo({ avatarSrc: data.avatarSrc, userID: data.userID, username: data.username })
         setRefreshWordBookAtom(true)
         navigate('/')
         return

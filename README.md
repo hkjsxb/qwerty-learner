@@ -6,8 +6,6 @@
   Qwerty Learner
 </h1>
 
-
-
 <p align="center">
   为键盘工作者设计的单词记忆与英语肌肉记忆锻炼软件
 </p>
@@ -23,7 +21,8 @@
 </div>
 
 ## 前言
-本项目fork自[RealKai42/qwerty-learner](https://github.com/RealKai42/qwerty-learner)，站在巨人的肩膀上，扩展了**自定义单词本**功能，可以快速添加自己的单词和短语，数据保存在服务器上，实现了多设备之间的数据同步。
+
+本项目 fork 自[RealKai42/qwerty-learner](https://github.com/RealKai42/qwerty-learner)，站在巨人的肩膀上，扩展了**自定义单词本**功能，可以快速添加自己的单词和短语，数据保存在服务器上，实现了多设备之间的数据同步。
 
 ## ✨ 设计思想
 

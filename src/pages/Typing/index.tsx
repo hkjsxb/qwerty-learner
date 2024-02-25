@@ -23,6 +23,7 @@ import {
   needLogin,
   randomConfigAtom,
   reviewModeInfoAtom,
+  settingsIsOpenAtom,
 } from '@/store'
 import { IsDesktop, isLegal } from '@/utils'
 import { useSaveChapterRecord } from '@/utils/db'
@@ -46,6 +47,7 @@ const App: React.FC = () => {
   const existsInRemote = useAtomValue(existsInRemoteData)
   const chapterLogUploader = useMixPanelChapterLogUploader(state)
   const saveChapterRecord = useSaveChapterRecord()
+  const settingsIsOPen = useAtomValue(settingsIsOpenAtom)
 
   const reviewModeInfo = useAtomValue(reviewModeInfoAtom)
   const isReviewMode = useAtomValue(isReviewModeAtom)
@@ -94,7 +96,8 @@ const App: React.FC = () => {
   }, [state.chapterData.words])
 
   useEffect(() => {
-    if (!state.isTyping) {
+    // 不处于输入状态且设置面板未打开则开始监听
+    if (!state.isTyping && !settingsIsOPen) {
       const onKeyDown = (e: KeyboardEvent) => {
         if (!isLoading && e.key !== 'Enter' && (isLegal(e.key) || e.key === ' ') && !e.altKey && !e.ctrlKey && !e.metaKey) {
           e.preventDefault()
@@ -105,7 +108,7 @@ const App: React.FC = () => {
 
       return () => window.removeEventListener('keydown', onKeyDown)
     }
-  }, [state.isTyping, isLoading, dispatch])
+  }, [state.isTyping, isLoading, dispatch, settingsIsOPen])
 
   useEffect(() => {
     if (words !== undefined) {

@@ -2,9 +2,13 @@ import { TypingContext, TypingStateActionType } from '../../store'
 import AdvancedSetting from './AdvancedSetting'
 import DataSetting from './DataSetting'
 import SoundSetting from './SoundSetting'
+import AccountSetting from '@/pages/Typing/components/Setting/AccountSetting'
 import ViewSetting from '@/pages/Typing/components/Setting/ViewSetting'
+import { IconAccount } from '@/pages/Typing/components/Setting/icon/IconAddWord'
+import { settingsIsOpenAtom } from '@/store'
 import { Dialog, Tab, Transition } from '@headlessui/react'
 import classNames from 'classnames'
+import { useSetAtom } from 'jotai'
 import { Fragment, useContext, useState } from 'react'
 import IconCog6Tooth from '~icons/heroicons/cog-6-tooth-solid'
 import IconEye from '~icons/heroicons/eye-solid'
@@ -15,14 +19,17 @@ import IconX from '~icons/tabler/x'
 
 export default function Setting() {
   const [isOpen, setIsOpen] = useState(false)
+  const setSettingsOpenState = useSetAtom(settingsIsOpenAtom)
   const { dispatch } = useContext(TypingContext) ?? {}
 
   function closeModal() {
     setIsOpen(false)
+    setSettingsOpenState(false)
   }
 
   function openModal() {
     setIsOpen(true)
+    setSettingsOpenState(true)
     if (dispatch) {
       dispatch({ type: TypingStateActionType.SET_IS_TYPING, payload: false })
     }
@@ -121,6 +128,17 @@ export default function Setting() {
                           <IconDatabaseCog className="mr-2 text-neutral-500  dark:text-neutral-300" />
                           <span className="text-neutral-500 dark:text-neutral-300">数据设置</span>
                         </Tab>
+                        <Tab
+                          className={({ selected }) =>
+                            classNames(
+                              'flex h-14 w-full cursor-pointer items-center gap-2 rounded-lg px-4 py-2 ring-0 focus:outline-none',
+                              selected && 'bg-gray-200 bg-opacity-50 dark:bg-gray-800',
+                            )
+                          }
+                        >
+                          <IconAccount className="mr-2 text-neutral-500  dark:text-neutral-300" />
+                          <span className="text-neutral-500 dark:text-neutral-300">帐户信息</span>
+                        </Tab>
                       </Tab.List>
 
                       <Tab.Panels className="h-full w-full flex-1">
@@ -135,6 +153,9 @@ export default function Setting() {
                         </Tab.Panel>
                         <Tab.Panel className="flex h-full focus:outline-none">
                           <DataSetting />
+                        </Tab.Panel>
+                        <Tab.Panel className="flex h-full focus:outline-none">
+                          <AccountSetting />
                         </Tab.Panel>
                       </Tab.Panels>
                     </div>

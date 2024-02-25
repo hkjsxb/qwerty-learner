@@ -34,6 +34,14 @@ const authLoginAPI = {
   authorizeLogin(params: paramsType) {
     return services.post(`${base.lkChatBaseURL}/user/authorizeLogin`, params)
   },
+  // 更新用户信息
+  updateUserInfo(params: { userId: string; avatarSrc?: string; userName?: string }) {
+    return services.post(`${base.lkChatBaseURL}/user/updateUserInfo`, params)
+  },
+  // 修改密码
+  modifyPassword(params: { password: string }) {
+    return services.post(`${base.lkChatBaseURL}/user/modifyPassword`, params)
+  },
 }
 
 export default authLoginAPI
