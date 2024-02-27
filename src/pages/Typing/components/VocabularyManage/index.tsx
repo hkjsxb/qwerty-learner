@@ -1,14 +1,16 @@
 import type { responseDataType, wordBookRow } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
 import Layout from '@/components/Layout'
+import BubbleConfirmTemplate from '@/pages/Typing/components/VocabularyManage/BubbleConfirmTemplate'
 import { refreshWordBookAtom, wordBookListAtom, wordBookListCountAtom } from '@/store'
 import type { PaginationProps } from '@arco-design/web-react'
+import { Message } from '@arco-design/web-react'
 import { Notification } from '@arco-design/web-react'
 import { Card } from '@arco-design/web-react'
-import { Button, Input, Table } from '@arco-design/web-react'
+import { Button, Input, Popconfirm, Table, Upload } from '@arco-design/web-react'
 import type { RefInputType } from '@arco-design/web-react/es/Input'
 import type { ColumnProps } from '@arco-design/web-react/es/Table'
-import { IconSearch } from '@arco-design/web-react/icon'
+import { IconImport, IconSearch } from '@arco-design/web-react/icon'
 import { useAtomValue, useSetAtom } from 'jotai'
 import type { Ref } from 'react'
 import { useEffect } from 'react'
@@ -25,6 +27,8 @@ const VocabularyManage = () => {
   const [loading, setLoading] = useState(false)
   const inputRef: Ref<RefInputType> | undefined = useRef(null)
   const filterRef: Ref<HTMLDivElement> = useRef(null)
+  const [tableHeight, setTableHeight] = useState(0)
+  const uploadRef: Ref<HTMLInputElement> = useRef(null)
   const onBack = useCallback(() => {
     navigate('/')
   }, [navigate])
@@ -168,16 +172,102 @@ const VocabularyManage = () => {
     if (current > maxPage) {
       current = maxPage
     }
+    setTableHeight(window.innerHeight - 150)
     setPagination((pagination) => ({ ...pagination, current, total: wordBookListCount }))
   }, [wordBookList, wordBookListCount])
+
+  // 处理批量导入
+  useEffect(() => {
+    const handleChange = () => {
+      const file = uploadRef.current?.files?.[0]
+      if (file == null) {
+        return
+      }
+      const maxSize = 3 * 1024 * 1024
+      if (file.size > maxSize) {
+        Message.error('文件必须小于3MB')
+        return
+      }
+      if (file.type !== 'application/json') {
+        Message.error('文件格式必须为JSON')
+        return
+      }
+
+      // 构造form对象
+      const formData = new FormData()
+      // 后台取值字段 | blob文件数据 | 文件名称
+      formData.append('file', file, file.name)
+      // 调用上传api
+      wordBookAPI.importWords(formData).then((res: responseDataType) => {
+        if (res.code === 0) {
+          // 刷新单词本数据
+          setRefreshWordBookAtom(true)
+          // 导入成功
+          Notification.success({
+            title: '导入成功',
+            content: '批量导入成功',
+            showIcon: true,
+            position: 'bottomRight',
+          })
+          return
+        }
+        // 导入失败
+        Notification.error({
+          title: '导入失败',
+          content: res.msg,
+          showIcon: true,
+          position: 'bottomRight',
+        })
+      })
+    }
+    // 绑定事件处理函数
+    const fileInput = uploadRef.current
+    if (!fileInput) return
+    fileInput.addEventListener('change', handleChange)
+    // 清理函数：组件卸载时移除事件监听
+    return () => {
+      fileInput.removeEventListener('change', handleChange)
+    }
+  }, [])
 
   return (
     <Layout>
       <div className="relative mb-auto mt-auto flex w-full flex-1 flex-col overflow-y-auto pl-20">
         <IconX className="absolute right-20 top-10 mr-2 h-7 w-7 cursor-pointer text-gray-400" onClick={onBack} />
-        <div className="mt-20 flex w-full flex-1 flex-col items-center justify-center overflow-y-auto">
-          <Card style={{ width: '80%' }} title="单词管理">
-            <Table loading={loading} columns={columns} data={data} pagination={pagination} onChange={onChangeTable} />
+        <div className="mt-20 flex w-full flex-1 flex-col items-center justify-center">
+          <Card
+            style={{ width: '85%', overflowY: 'auto' }}
+            title="单词管理"
+            extra={
+              <Popconfirm
+                focusLock
+                title="导入确认"
+                content={BubbleConfirmTemplate}
+                onOk={() => {
+                  console.log('执行上传动作')
+                  uploadRef.current?.click()
+                }}
+                onCancel={() => {
+                  console.log('取消')
+                }}
+              >
+                <div className="trigger" style={{ display: 'none' }}></div>
+                <Button type="text" icon={<IconImport />}>
+                  批量导入
+                </Button>
+              </Popconfirm>
+            }
+            className={' overflow-y-auto'}
+          >
+            <Table
+              loading={loading}
+              columns={columns}
+              data={data}
+              pagination={pagination}
+              onChange={onChangeTable}
+              scroll={{ y: tableHeight - 100 }}
+            />
+            <input type="file" ref={uploadRef} style={{ display: 'none' }} />
           </Card>
         </div>
       </div>
