@@ -172,6 +172,9 @@ const VocabularyManage = () => {
     if (current > maxPage) {
       current = maxPage
     }
+    if (wordBookListCount > 0 && current < 1) {
+      current = 1
+    }
     setTableHeight(window.innerHeight - 150)
     setPagination((pagination) => ({ ...pagination, current, total: wordBookListCount }))
   }, [wordBookList, wordBookListCount])
