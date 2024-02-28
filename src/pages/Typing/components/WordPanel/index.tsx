@@ -144,6 +144,7 @@ export default function WordPanel() {
               </div>
             )}
             <div className="relative">
+              {/*单词展示组件*/}
               <WordComponent word={currentWord} onFinish={onFinish} key={wordComponentKey} />
               {phoneticConfig.isOpen && <Phonetic word={currentWord} />}
               {state.isTransVisible && <Translation trans={currentWord.trans.join('；')} />}
