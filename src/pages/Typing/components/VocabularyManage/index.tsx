@@ -198,27 +198,38 @@ const VocabularyManage = () => {
       // 后台取值字段 | blob文件数据 | 文件名称
       formData.append('file', file, file.name)
       // 调用上传api
-      wordBookAPI.importWords(formData).then((res: responseDataType) => {
-        if (res.code === 0) {
-          // 刷新单词本数据
-          setRefreshWordBookAtom(true)
-          // 导入成功
-          Notification.success({
-            title: '导入成功',
-            content: '批量导入成功',
+      wordBookAPI
+        .importWords(formData)
+        .then((res: responseDataType) => {
+          if (res.code === 0) {
+            // 刷新单词本数据
+            setRefreshWordBookAtom(true)
+            // 导入成功
+            Notification.success({
+              title: '导入成功',
+              content: '批量导入成功',
+              showIcon: true,
+              position: 'bottomRight',
+            })
+            return
+          }
+          // 导入失败
+          Notification.error({
+            title: '导入失败',
+            content: res.msg,
             showIcon: true,
             position: 'bottomRight',
           })
-          return
-        }
-        // 导入失败
-        Notification.error({
-          title: '导入失败',
-          content: res.msg,
-          showIcon: true,
-          position: 'bottomRight',
         })
-      })
+        .catch((error) => {
+          // 导入失败
+          Notification.error({
+            title: '导入失败',
+            content: error.data.msg,
+            showIcon: true,
+            position: 'bottomRight',
+          })
+        })
     }
     // 绑定事件处理函数
     const fileInput = uploadRef.current
@@ -244,11 +255,7 @@ const VocabularyManage = () => {
                 title="导入确认"
                 content={BubbleConfirmTemplate}
                 onOk={() => {
-                  console.log('执行上传动作')
                   uploadRef.current?.click()
-                }}
-                onCancel={() => {
-                  console.log('取消')
                 }}
               >
                 <div className="trigger" style={{ display: 'none' }}></div>

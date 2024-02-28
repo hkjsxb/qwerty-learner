@@ -40,7 +40,6 @@ const renewalFailedFn = (reason: string) => {
   // 触发自定义事件，告知组件需要更新全局状态
   const axiosCatchEvent = new CustomEvent('axiosCatchEvent', { detail: { reason, type: 'needLogin' } })
   window.dispatchEvent(axiosCatchEvent)
-  console.log(localStorage)
   // 如果localStorage中不包含userInfo则弹出体验帐号的信息
   if (!localStorage.getItem('userInfo')) {
     Notification.info({
@@ -171,11 +170,23 @@ _axios.interceptors.response.use(
   },
   function (error) {
     if (error) {
+      const data = {
+        ...error,
+        data: {
+          code: -1,
+          msg: '服务器错误',
+        },
+      }
       // 请求已发出，但不在2xx范围内
-      return Promise.reject(error)
+      return Promise.reject(data)
     } else {
       // 断网
-      return Promise.reject(error)
+      return Promise.reject({
+        data: {
+          code: -1,
+          msg: '未连接到网络',
+        },
+      })
     }
   },
 )
