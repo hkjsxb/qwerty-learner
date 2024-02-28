@@ -230,6 +230,11 @@ const VocabularyManage = () => {
             position: 'bottomRight',
           })
         })
+        .finally(() => {
+          if (uploadRef?.current) {
+            uploadRef.current.value = ''
+          }
+        })
     }
     // 绑定事件处理函数
     const fileInput = uploadRef.current
