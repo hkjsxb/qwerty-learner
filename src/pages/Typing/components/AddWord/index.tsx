@@ -22,6 +22,7 @@ export default function AddWordPage() {
   const formRef = useRef<FormInstance>(null)
   const Option = Select.Option
   const [bookNameOptions, setBookNameOptions] = useState<Array<string>>([])
+  const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
   const [descCanEdit, setDescCanEdit] = useState(false)
   const [refreshBookSelectState, setBookSelectState] = useState(false)
@@ -84,8 +85,12 @@ export default function AddWordPage() {
   }
 
   const saveFn = (rowData: wordBookRow) => {
+    if (loading) return
+    setLoading(true)
+    // 弹出全局的加载
     wordBookAPI.addWords(rowData).then((res: responseDataType<string>) => {
       const { code, data, msg } = res
+      setLoading(false)
       if (typeof code === 'number' && code === 0) {
         setDefaultWordBookId(rowData.bookName || '')
         Notification.success({
@@ -173,7 +178,7 @@ export default function AddWordPage() {
               </FormItem>
 
               <FormItem wrapperCol={{ offset: 5 }}>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={loading}>
                   保存
                 </Button>
               </FormItem>
