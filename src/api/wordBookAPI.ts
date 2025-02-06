@@ -22,6 +22,12 @@ const wordBookAPI = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
+  // 批量导入
+  importWordsForExcel(file: FormData) {
+    return services.post(`${base.lkBaseURL}/wordBook/importWordsForExcel`, file, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
 }
 
 export default wordBookAPI

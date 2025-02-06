@@ -191,53 +191,94 @@ const VocabularyManage = () => {
         Message.error('文件必须小于3MB')
         return
       }
-      if (file.type !== 'application/json') {
-        Message.error('文件格式必须为JSON')
-        return
-      }
 
       // 构造form对象
       const formData = new FormData()
       // 后台取值字段 | blob文件数据 | 文件名称
       formData.append('file', file, file.name)
-      // 调用上传api
-      wordBookAPI
-        .importWords(formData)
-        .then((res: responseDataType) => {
-          if (res.code === 0) {
-            // 刷新单词本数据
-            setRefreshWordBookAtom(true)
-            // 导入成功
-            Notification.success({
-              title: '导入成功',
-              content: '批量导入成功',
-              showIcon: true,
-              position: 'bottomRight',
+      switch (file.type) {
+        case 'application/json':
+          wordBookAPI
+            .importWords(formData)
+            .then((res: responseDataType) => {
+              if (res.code === 0) {
+                // 刷新单词本数据
+                setRefreshWordBookAtom(true)
+                // 导入成功
+                Notification.success({
+                  title: '导入成功',
+                  content: '批量导入成功',
+                  showIcon: true,
+                  position: 'bottomRight',
+                })
+                return
+              }
+              // 导入失败
+              Notification.error({
+                title: '导入失败',
+                content: res.msg,
+                showIcon: true,
+                position: 'bottomRight',
+              })
             })
-            return
-          }
-          // 导入失败
-          Notification.error({
-            title: '导入失败',
-            content: res.msg,
-            showIcon: true,
-            position: 'bottomRight',
-          })
-        })
-        .catch((error) => {
-          // 导入失败
-          Notification.error({
-            title: '导入失败',
-            content: error.data.msg,
-            showIcon: true,
-            position: 'bottomRight',
-          })
-        })
-        .finally(() => {
-          if (uploadRef?.current) {
-            uploadRef.current.value = ''
-          }
-        })
+            .catch((error) => {
+              // 导入失败
+              Notification.error({
+                title: '导入失败',
+                content: error.data.msg,
+                showIcon: true,
+                position: 'bottomRight',
+              })
+            })
+            .finally(() => {
+              if (uploadRef?.current) {
+                uploadRef.current.value = ''
+              }
+            })
+          break
+        case 'application/vnd.ms-excel':
+        case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+          wordBookAPI
+            .importWordsForExcel(formData)
+            .then((res: responseDataType) => {
+              if (res.code === 0) {
+                // 刷新单词本数据
+                setRefreshWordBookAtom(true)
+                // 导入成功
+                Notification.success({
+                  title: '导入成功',
+                  content: '批量导入成功',
+                  showIcon: true,
+                  position: 'bottomRight',
+                })
+                return
+              }
+              // 导入失败
+              Notification.error({
+                title: '导入失败',
+                content: res.msg,
+                showIcon: true,
+                position: 'bottomRight',
+              })
+            })
+            .catch((error) => {
+              // 导入失败
+              Notification.error({
+                title: '导入失败',
+                content: error.data.msg,
+                showIcon: true,
+                position: 'bottomRight',
+              })
+            })
+            .finally(() => {
+              if (uploadRef?.current) {
+                uploadRef.current.value = ''
+              }
+            })
+          break
+        default:
+          break
+      }
     }
     // 绑定事件处理函数
     const fileInput = uploadRef.current
@@ -282,7 +323,7 @@ const VocabularyManage = () => {
               onChange={onChangeTable}
               scroll={{ y: tableHeight - 100 }}
             />
-            <input type="file" ref={uploadRef} style={{ display: 'none' }} />
+            <input type="file" ref={uploadRef} style={{ display: 'none' }} accept=".json, .xls, .xlsx" />
           </Card>
         </div>
       </div>
