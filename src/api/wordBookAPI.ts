@@ -16,6 +16,9 @@ const wordBookAPI = {
   delWords(params: { id: number }) {
     return services.post(`${base.lkBaseURL}/wordBook/delWords`, params)
   },
+  delWordBook(params: { name: string }) {
+    return services.post(`${base.lkBaseURL}/wordBook/delWordBook`, params)
+  },
   // 批量导入
   importWords(file: FormData) {
     return services.post(`${base.lkBaseURL}/wordBook/importWords`, file, {

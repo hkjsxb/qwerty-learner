@@ -2,6 +2,7 @@ import type { responseDataType, wordBookRow } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
 import Layout from '@/components/Layout'
 import BubbleConfirmTemplate from '@/pages/Typing/components/VocabularyManage/BubbleConfirmTemplate'
+import BubbleDelWordsBookConfirm from '@/pages/Typing/components/VocabularyManage/BubbleDelWordsBookConfirm'
 import { refreshWordBookAtom, wordBookListAtom, wordBookListCountAtom } from '@/store'
 import type { PaginationProps } from '@arco-design/web-react'
 import { Message } from '@arco-design/web-react'
@@ -10,7 +11,7 @@ import { Card } from '@arco-design/web-react'
 import { Button, Input, Popconfirm, Table } from '@arco-design/web-react'
 import type { RefInputType } from '@arco-design/web-react/es/Input'
 import type { ColumnProps } from '@arco-design/web-react/es/Table'
-import { IconImport, IconSearch } from '@arco-design/web-react/icon'
+import { IconDelete, IconImport, IconSearch } from '@arco-design/web-react/icon'
 import { useAtomValue, useSetAtom } from 'jotai'
 import type { Ref } from 'react'
 import { useEffect } from 'react'
@@ -42,6 +43,8 @@ const VocabularyManage = () => {
   })
 
   const [data, setData] = useState(wordBookList)
+  const [selectedRows, setSelectedRows] = useState<wordBookRow[]>([])
+  const [delBookName, setDelBookName] = useState<string>('')
   const columns: Array<ColumnProps> = [
     {
       title: '单词或短语',
@@ -127,6 +130,79 @@ const VocabularyManage = () => {
         setLoading(false)
       }, 300)
     }
+  }
+
+  const delBook = () => {
+    console.log('待删除的单词本', delBookName)
+    wordBookAPI.delWordBook({ name: delBookName }).then((res: responseDataType<string>) => {
+      if (res.code === 0) {
+        // 刷新单词本数据
+        setRefreshWordBookAtom(true)
+        // 删除成功
+        Notification.success({
+          title: '删除成功',
+          content: `单词本${delBookName}已删除`,
+          showIcon: true,
+          position: 'bottomRight',
+        })
+        return
+      }
+      // 删除失败
+      Notification.error({
+        title: '删除失败',
+        content: res.msg,
+        showIcon: true,
+        position: 'bottomRight',
+      })
+    })
+  }
+
+  const removeRows = (ids: Array<number>) => {
+    if (ids.length <= 0) {
+      Notification.info({
+        title: '未勾选数据',
+        content: '请勾选要删除的数据',
+        showIcon: true,
+        position: 'topRight',
+      })
+      return
+    }
+    // 将每个删除请求封装为 Promise
+    const deletePromises = ids.map((id) => wordBookAPI.delWords({ id }))
+    // 使用 Promise.all 来并行执行删除请求
+    Promise.all(deletePromises)
+      .then((results) => {
+        // 结果数组，每个删除请求的返回值
+        const successCount = results.filter((res) => res.code === 0).length
+        const failureCount = results.length - successCount
+
+        if (successCount > 0) {
+          setRefreshWordBookAtom(true)
+          Notification.success({
+            title: '批量删除成功',
+            content: `成功删除了 ${successCount} 个单词`,
+            showIcon: true,
+            position: 'bottomRight',
+          })
+        }
+        if (failureCount > 0) {
+          Notification.error({
+            title: '批量删除失败',
+            content: `有 ${failureCount} 个单词删除失败`,
+            showIcon: true,
+            position: 'bottomRight',
+          })
+        }
+      })
+      .catch((error) => {
+        // 处理请求失败的情况
+        Notification.error({
+          title: '批量删除失败',
+          content: `发生了错误: ${error.message}`,
+          showIcon: true,
+          position: 'bottomRight',
+        })
+      })
   }
 
   const removeRow = (id?: number) => {
@@ -290,6 +366,10 @@ const VocabularyManage = () => {
     }
   }, [])
 
+  const handleDescriptionChange = (value: string) => {
+    setDelBookName(value)
+  }
+
   return (
     <Layout>
       <div className="relative mb-auto mt-auto flex w-full flex-1 flex-col overflow-y-auto pl-20">
@@ -299,19 +379,37 @@ const VocabularyManage = () => {
             style={{ width: '85%', overflowY: 'auto' }}
             title="单词管理"
             extra={
-              <Popconfirm
-                focusLock
-                title="导入确认"
-                content={BubbleConfirmTemplate}
-                onOk={() => {
-                  uploadRef.current?.click()
-                }}
-              >
-                <div className="trigger" style={{ display: 'none' }}></div>
-                <Button type="text" icon={<IconImport />}>
-                  批量导入
+              <div>
+                <Popconfirm
+                  focusLock
+                  title="导入确认"
+                  content={BubbleConfirmTemplate}
+                  onOk={() => {
+                    uploadRef.current?.click()
+                  }}
+                >
+                  <div className="trigger" style={{ display: 'none' }}></div>
+                  <Button type="text" icon={<IconImport />}>
+                    批量导入
+                  </Button>
+                </Popconfirm>
+                <Button onClick={() => removeRows(selectedRows.map((row) => row.id))} type="text" status="danger" icon={<IconDelete />}>
+                  批量删除
                 </Button>
-              </Popconfirm>
+                <Popconfirm
+                  focusLock
+                  title="删除确认"
+                  content={<BubbleDelWordsBookConfirm onSelect={handleDescriptionChange} />}
+                  onOk={() => {
+                    delBook()
+                  }}
+                >
+                  <div className="trigger" style={{ display: 'none' }}></div>
+                  <Button type="primary" icon={<IconDelete />}>
+                    删除单词本
+                  </Button>
+                </Popconfirm>
+              </div>
             }
             className={' overflow-y-auto'}
           >
@@ -319,9 +417,16 @@ const VocabularyManage = () => {
               loading={loading}
               columns={columns}
               data={data}
+              rowKey="id"
               pagination={pagination}
               onChange={onChangeTable}
               scroll={{ y: tableHeight - 100 }}
+              rowSelection={{
+                selectedRowKeys: selectedRows.map((row) => row.id),
+                onChange: (selectedRowKeys, selectedRows) => {
+                  setSelectedRows(selectedRows)
+                },
+              }}
             />
             <input type="file" ref={uploadRef} style={{ display: 'none' }} accept=".json, .xls, .xlsx" />
           </Card>
