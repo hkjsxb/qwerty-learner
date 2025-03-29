@@ -90,7 +90,12 @@ export default function WordDictationSwitcher() {
                 <div className="flex w-full  flex-col  items-start gap-2 py-0">
                   <span className="text-sm font-normal leading-5 text-gray-900 dark:text-white dark:text-opacity-60">开关默写模式</span>
                   <div className="flex w-full flex-row items-center justify-between">
-                    <Switch checked={wordDictationConfig.isOpen} onChange={onToggleWordDictation} className="switch-root">
+                    <Switch
+                      checked={wordDictationConfig.isOpen}
+                      onChange={onToggleWordDictation}
+                      className="switch-root"
+                      style={{ backgroundColor: '#6466F1' }}
+                    >
                       <span aria-hidden="true" className="switch-thumb" />
                     </Switch>
                     <span className="text-right text-xs font-normal leading-tight text-gray-600">{`默写已${
