@@ -1,6 +1,8 @@
 import Loading from './components/Loading'
 import './index.scss'
 import { ErrorBook } from './pages/ErrorBook'
+import { FriendLinks } from './pages/FriendLinks'
+import MobilePage from './pages/Mobile'
 import TypingPage from './pages/Typing'
 import type { responseDataType, wordBookCountType, wordBookListType, wordBookRow } from '@/api/type/WordBookType'
 import wordBookAPI from '@/api/wordBookAPI'
@@ -16,6 +18,7 @@ import {
 import type { DictionaryResource } from '@/typings'
 import { calcChapterCount } from '@/utils'
 import { Notification } from '@arco-design/web-react'
+import 'animate.css'
 import { useAtom, useAtomValue } from 'jotai'
 import { useSetAtom } from 'jotai/index'
 import mixpanel from 'mixpanel-browser'
@@ -37,8 +40,6 @@ if (process.env.NODE_ENV === 'production') {
   // for dev
   mixpanel.init('5474177127e4767124c123b2d7846e2a', { debug: true })
 }
-
-const container = document.getElementById('root')
 
 function Root() {
   const [wordBookLoadState, setWordBookLoadState] = useState(false)
@@ -164,24 +165,49 @@ function Root() {
     return <Loading />
   }
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth <= 600
+      if (!isMobile) {
+        window.location.href = '/'
+      }
+      setIsMobile(isMobile)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   return (
     <React.StrictMode>
       <BrowserRouter basename={process.env.NODE_ENV === 'development' ? '' : '/english-study'}>
         <Suspense fallback={<Loading />}>
           <Routes>
-            <Route index element={<TypingPage />} />
-            <Route path="/gallery" element={<GalleryPage />} />
-            <Route path="/analysis" element={<AnalysisPage />} />
-            <Route path="/error-book" element={<ErrorBook />} />
-            <Route path="/add-word" element={<AddWordPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/mange-word" element={<VocabularyManage />} />
-            <Route path="/*" element={<Navigate to="/" />} />
+            {isMobile ? (
+              <Route path="/*" element={<Navigate to="/mobile" />} />
+            ) : (
+              <>
+                <Route index element={<TypingPage />} />
+                <Route path="/gallery" element={<GalleryPage />} />
+                <Route path="/analysis" element={<AnalysisPage />} />
+                <Route path="/error-book" element={<ErrorBook />} />
+                <Route path="/friend-links" element={<FriendLinks />} />
+                <Route path="/add-word" element={<AddWordPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/mange-word" element={<VocabularyManage />} />
+                <Route path="/*" element={<Navigate to="/" />} />
+              </>
+            )}
+            <Route path="/mobile" element={<MobilePage />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
     </React.StrictMode>
   )
 }
+
+const container = document.getElementById('root')
 
 container && createRoot(container).render(<Root />)

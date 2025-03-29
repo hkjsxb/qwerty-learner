@@ -1,3 +1,4 @@
+import DropdownExport from './DropdownExport'
 import ErrorRow from './ErrorRow'
 import type { ISortType } from './HeadWrongNumber'
 import HeadWrongNumber from './HeadWrongNumber'
@@ -5,7 +6,7 @@ import Pagination, { ITEM_PER_PAGE } from './Pagination'
 import RowDetail from './RowDetail'
 import { currentRowDetailAtom } from './store'
 import type { groupedWordRecords } from './type'
-import { db } from '@/utils/db'
+import { db, useDeleteWordRecord } from '@/utils/db'
 import type { WordRecord } from '@/utils/db/record'
 import * as ScrollArea from '@radix-ui/react-scroll-area'
 import { useAtomValue } from 'jotai'
@@ -20,6 +21,9 @@ export function ErrorBook() {
   const [sortType, setSortType] = useState<ISortType>('asc')
   const navigate = useNavigate()
   const currentRowDetail = useAtomValue(currentRowDetailAtom)
+  const { deleteWordRecord } = useDeleteWordRecord()
+  const [reload, setReload] = useState(false)
+  const [paraphrases, setParaphrases] = useState<any[]>([])
 
   const onBack = useCallback(() => {
     navigate('/')
@@ -84,7 +88,16 @@ export function ErrorBook() {
 
         setGroupedRecords(groups)
       })
-  }, [])
+  }, [reload])
+
+  const handleDelete = async (word: string, dict: string) => {
+    await deleteWordRecord(word, dict)
+    setReload((prev) => !prev)
+  }
+
+  const handleWordUpdate = (paraphrases: object) => {
+    setParaphrases((prevWords) => [...prevWords, paraphrases])
+  }
 
   return (
     <>
@@ -100,13 +113,19 @@ export function ErrorBook() {
               <span className="basis-2/12">单词</span>
               <span className="basis-6/12">释义</span>
               <HeadWrongNumber className="basis-1/12" sortType={sortType} setSortType={setSort} />
-              <span className="basis-2/12">词典</span>
+              <span className="basis-1/12">词典</span>
+              <DropdownExport renderRecords={renderRecords} paraphrases={paraphrases} />
             </div>
             <ScrollArea.Root className="flex-1 overflow-y-auto pt-5">
               <ScrollArea.Viewport className="h-full  ">
                 <div className="flex flex-col gap-3">
                   {renderRecords.map((record) => (
-                    <ErrorRow key={`${record.dict}-${record.word}`} record={record} />
+                    <ErrorRow
+                      key={`${record.dict}-${record.word}`}
+                      record={record}
+                      onDelete={() => handleDelete(record.word, record.dict)}
+                      onWordUpdate={handleWordUpdate}
+                    />
                   ))}
                 </div>
               </ScrollArea.Viewport>

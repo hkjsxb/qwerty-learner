@@ -10,7 +10,7 @@ import useSound from 'use-sound'
 import type { HookOptions } from 'use-sound/dist/types'
 
 const pronunciationApi = 'https://dict.youdao.com/dictvoice?audio='
-export function generateWordSoundSrc(word: string, pronunciation: Exclude<PronunciationType, false>) {
+export function generateWordSoundSrc(word: string, pronunciation: Exclude<PronunciationType, false>): string {
   switch (pronunciation) {
     case 'uk':
       return `${pronunciationApi}${word}&type=1`
@@ -24,6 +24,13 @@ export function generateWordSoundSrc(word: string, pronunciation: Exclude<Pronun
       return `${pronunciationApi}${word}&le=jap`
     case 'de':
       return `${pronunciationApi}${word}&le=de`
+    case 'hapin':
+    case 'kk':
+      return `${pronunciationApi}${word}&le=ru` // 有道不支持哈萨克语, 暂时用俄语发音兜底
+    case 'id':
+      return `${pronunciationApi}${word}&le=id`
+    default:
+      return ''
   }
 }
 
@@ -72,17 +79,24 @@ export function usePrefetchPronunciationSound(word: string | undefined) {
     if (!word) return
 
     const soundUrl = generateWordSoundSrc(word, pronunciationConfig.type)
+    if (soundUrl === '') return
+
     const head = document.head
     const isPrefetch = (Array.from(head.querySelectorAll('link[href]')) as HTMLLinkElement[]).some((el) => el.href === soundUrl)
 
     if (!isPrefetch) {
-      const link = document.createElement('link')
-      link.rel = 'prefetch'
-      link.href = soundUrl
-      head.appendChild(link)
+      const audio = new Audio()
+      audio.src = soundUrl
+      audio.preload = 'auto'
+
+      // gpt 说这这两行能尽可能规避下载插件被触发问题。 本地测试不加也可以，考虑到别的插件可能有问题，所以加上保险
+      audio.crossOrigin = 'anonymous'
+      audio.style.display = 'none'
+
+      head.appendChild(audio)
 
       return () => {
-        head.removeChild(link)
+        head.removeChild(audio)
       }
     }
   }, [pronunciationConfig.type, word])

@@ -1,10 +1,13 @@
 import type { WordPronunciationIconRef } from '@/components/WordPronunciationIcon'
 import { WordPronunciationIcon } from '@/components/WordPronunciationIcon'
+import { currentDictInfoAtom } from '@/store'
 import type { Word } from '@/typings'
+import { useAtomValue } from 'jotai'
 import { useCallback, useRef } from 'react'
 
 export default function WordCard({ word, isActive }: { word: Word; isActive: boolean }) {
   const wordPronunciationIconRef = useRef<WordPronunciationIconRef>(null)
+  const currentLanguage = useAtomValue(currentDictInfoAtom).language
 
   const handlePlay = useCallback(() => {
     wordPronunciationIconRef.current?.play()
@@ -19,10 +22,12 @@ export default function WordCard({ word, isActive }: { word: Word; isActive: boo
       onClick={handlePlay}
     >
       <div className="flex-1">
-        <p className="select-all font-mono text-xl font-normal leading-6 dark:text-gray-50">{word.name}</p>
-        <div className="mt-2 max-w-sm font-sans text-sm text-gray-400">{word.trans}</div>
+        <p className="select-all font-mono text-xl font-normal leading-6 dark:text-gray-50">
+          {['romaji', 'hapin'].includes(currentLanguage) ? word.notation : word.name}
+        </p>
+        <div className="mt-2 max-w-sm font-sans text-sm text-gray-400">{word.trans.join('；')}</div>
       </div>
-      <WordPronunciationIcon word={word.name} className="h-8 w-8" ref={wordPronunciationIconRef} />
+      <WordPronunciationIcon word={word} lang={currentLanguage} className="h-8 w-8" ref={wordPronunciationIconRef} />
     </div>
   )
 }

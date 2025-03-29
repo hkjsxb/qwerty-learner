@@ -7,6 +7,9 @@ module.exports = {
   },
   theme: {
     extend: {
+      colors: {
+        primary: '#6366f1',
+      },
       keyframes: {
         'accordion-down': {
           from: { height: 0 },
@@ -73,23 +76,5 @@ module.exports = {
       backgroundOpacity: ['dark'],
     },
   },
-  plugins: [require('@headlessui/tailwindcss'), require('@tailwindcss/forms'), require('daisyui'), require('tailwindcss-animate')],
-  daisyui: {
-    themes: [
-      {
-        mytheme: {
-          primary: '#6366f1',
-          secondary: '#7dd3fc',
-          accent: '#cc8316',
-          neutral: '#272735',
-          'base-100': '#f0eff1',
-          info: '#f3f4f6',
-          success: '#6fe7ab',
-          warning: '#d6920a',
-          error: '#f43f5e',
-        },
-      },
-      'dark',
-    ],
-  },
+  plugins: [require('@headlessui/tailwindcss'), require('@tailwindcss/forms'), require('tailwindcss-animate')],
 }

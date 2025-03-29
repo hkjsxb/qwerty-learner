@@ -9,9 +9,11 @@ import { recordOpenInfoPanelAction } from '@/utils'
 import { useAtom } from 'jotai'
 import type React from 'react'
 import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import IconMail from '~icons/material-symbols/mail'
 import IconCoffee2 from '~icons/mdi/coffee'
 import IconXiaoHongShu from '~icons/my-icons/xiaohongshu'
+import RiLinksLine from '~icons/ri/links-line'
 import IconTwitter from '~icons/ri/twitter-fill'
 import IconGithub from '~icons/simple-icons/github'
 import IconVisualstudiocode from '~icons/simple-icons/visualstudiocode'
@@ -23,6 +25,7 @@ import IconFlagChina from '~icons/twemoji/flag-china'
 
 const Footer: React.FC = () => {
   const [infoPanelState, setInfoPanelState] = useAtom(infoPanelStateAtom)
+  const navigate = useNavigate()
 
   const handleOpenInfoPanel = useCallback(
     (modalType: InfoPanelType) => {
@@ -115,7 +118,7 @@ const Footer: React.FC = () => {
         <br />
         <p className="text-sm text-gray-500  dark:text-gray-400">再次感谢您的支持和关注！</p>
         <br />
-        <img className="ml-1 w-2/6 " src="https://qwerty.kaiyi.cool/weChat-group.jpg" alt="weChat-group" />
+        <img className="ml-1 w-2/6 " src="https://qwerty.kaiyi.cool/weChat-group.png" alt="weChat-group" />
         <br />
       </InfoPanel>
 
@@ -208,6 +211,9 @@ const Footer: React.FC = () => {
           aria-label="发送邮件到 me@kaiyi.cool"
         >
           <IconMail fontSize={16} className="text-gray-500 hover:text-indigo-400 dark:text-gray-400 dark:hover:text-indigo-400" />
+        </a>
+        <a rel="noreferrer" className="cursor-pointer focus:outline-none" onClick={() => navigate('/friend-links')} aria-label="查看友链">
+          <RiLinksLine fontSize={14} className="text-gray-500 hover:text-indigo-400 dark:text-gray-400 dark:hover:text-indigo-400" />
         </a>
 
         <Tooltip content="中国大陆镜像">
