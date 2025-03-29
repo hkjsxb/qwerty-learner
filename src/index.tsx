@@ -73,6 +73,22 @@ function Root() {
     })
     return wordBooksCount
   }
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth <= 600
+      if (!isMobile) {
+        window.location.href = '/'
+      }
+      setIsMobile(isMobile)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   useEffect(() => {
     const mergeData = (data: Array<wordBookRow>, countInfo: Array<wordBookCountType>): DictionaryResource[] => {
       const seen: Record<string, boolean> = {} // 记录已添加的组合
@@ -164,21 +180,6 @@ function Root() {
   if (!wordBookLoadState) {
     return <Loading />
   }
-
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600)
-
-  useEffect(() => {
-    const handleResize = () => {
-      const isMobile = window.innerWidth <= 600
-      if (!isMobile) {
-        window.location.href = '/'
-      }
-      setIsMobile(isMobile)
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
 
   return (
     <React.StrictMode>

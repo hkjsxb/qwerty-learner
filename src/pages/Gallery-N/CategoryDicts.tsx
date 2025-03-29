@@ -28,20 +28,12 @@ export default function DictionaryGroup({ groupedDictsByTag }: { groupedDictsByT
   if (groupedDictsByTag[currentTag]) {
     return (
       <div>
-        <DictTagSwitcher
-          tagList={tagList}
-          currentTag={currentTag}
-          onChangeCurrentTag={onChangeCurrentTag}/>
-        <div
-          className="mt-8 grid gap-x-5 gap-y-10 px-1 pb-4 sm:grid-cols-1 md:grid-cols-2 dic3:grid-cols-3 dic4:grid-cols-4">
+        <DictTagSwitcher tagList={tagList} currentTag={currentTag} onChangeCurrentTag={onChangeCurrentTag} />
+        <div className="mt-8 grid gap-x-5 gap-y-10 px-1 pb-4 sm:grid-cols-1 md:grid-cols-2 dic3:grid-cols-3 dic4:grid-cols-4">
           {currentTag && groupedDictsByTag[currentTag] ? (
-            groupedDictsByTag[currentTag].map((dict) =>
-              <DictionaryComponent
-                key={dict.id}
-                dictionary={dict}/>)
+            groupedDictsByTag[currentTag].map((dict) => <DictionaryComponent key={dict.id} dictionary={dict} />)
           ) : (
-            <div
-              className="col-span-full text-center text-gray-500">当前分类下没有可用的词典</div>
+            <div className="col-span-full text-center text-gray-500">当前分类下没有可用的词典</div>
           )}
         </div>
       </div>
@@ -49,23 +41,19 @@ export default function DictionaryGroup({ groupedDictsByTag }: { groupedDictsByT
   }
   // 不存在
   return (
-    <div
-      className="w-full">
-      <DictTagSwitcher
-        tagList={tagList}
-        currentTag={currentTag}
-        onChangeCurrentTag={onChangeCurrentTag}/>
+    <div className="w-full">
+      <DictTagSwitcher tagList={tagList} currentTag={currentTag} onChangeCurrentTag={onChangeCurrentTag} />
       <Empty
         className="mt-8 flex items-center"
         description={
-          <div
-            className="flex items-center justify-center">
+          <div className="flex items-center justify-center">
             尚未添加单词数据，去
             <Link
               style={{
                 display: 'flex',
-                alignItems: 'center'
-              }}>
+                alignItems: 'center',
+              }}
+            >
               <IconAddWord width={14} height={14} className="mr-1" />
               <NavLink to="/add-word">添加</NavLink>
             </Link>
