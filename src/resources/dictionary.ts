@@ -15,6 +15,17 @@ const chinaExam: DictionaryResource[] = [
     languageCategory: 'en',
   },
   {
+    id: 'liuxiaoyan_cet4',
+    name: '英语四级 你还在背单词吗',
+    description: '大学英语四级高频词库',
+    category: '中国考试',
+    tags: ['大学英语'],
+    url: '/dicts/cet4_target.json',
+    length:2055,
+    language: 'en',
+    languageCategory: 'en',
+  },
+  {
     id: 'cet6',
     name: 'CET-6',
     description: '大学英语六级词库',
